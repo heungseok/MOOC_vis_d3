@@ -1,0 +1,260 @@
+html, body, #container {
+    min-height: 100% !important;
+    height: 100%;
+}
+
+body{
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    /*background-color:#101010;*/
+    color: #9d9d9d;
+
+}
+
+nav {
+    z-index: 1000000;
+}
+#container{
+    font: 12px Arial;
+    stroke-width: 2;
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+
+}
+
+#graph-container {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 70vh;
+    top: 5vh;
+
+    /*height: 100%;*/
+    position: absolute;
+}
+
+#pc-container{
+    width: 100%;
+    height: 25vh;
+    bottom: 0vh;
+
+
+    position: absolute;
+}
+
+
+#basic-info-pane {
+    top: 5vh;
+    /*bottom: 10px;*/
+    left: 10px;
+    position: absolute;
+    width: 230px;
+    background-color: #f5f5f5;
+    color: #333;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    z-index: 10000;
+
+}
+#basic-info-pane> div.colorCode-info {
+    margin: 10px;
+    overflow-x: auto;
+    font-size: 15px;
+}
+
+#control-pane {
+    top: 5vh;
+    /*bottom: 10px;*/
+    right: 10px;
+    position: absolute;
+    width: 230px;
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+#control-pane > div {
+    margin: 10px;
+    overflow-x: auto;
+}
+.line {
+    clear: both;
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 12px 0 0 0;
+    border-bottom: 1px solid #333;
+    background: transparent;
+}
+h2, h3, h4 {
+    padding: 0;
+    font-variant: small-caps;
+}
+
+
+h2.underline {
+    color: #333;
+    background: #f5f5f5;
+    margin: 0;
+    border-radius: 2px;
+    padding: 8px 12px;
+    font-weight: 700;
+}
+.hidden {
+    display: none;
+    visibility: hidden;
+}
+
+input[type=range] {
+    width: 160px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 4%;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+
+
+    transition: all 0.3s ease-out;
+}
+
+/* Modal Content */
+.modal-content {
+    position: relative;
+    margin: auto;
+    padding: 0;
+    border: 1px solid transparent;
+    width: 50%;
+
+    background-color: #333; /* Black w/ opacfity */
+    opacity: .9;
+    box-shadow: 0 3px 40px 6px rgba(0,0,0,.4);
+    -webkit-animation-name: animatetop;
+    -webkit-animation-duration: 0.4s;
+    animation-name: animatetop;
+    animation-duration: 0.4s
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+    from {top:-300px; opacity:0}
+    to {top:0; opacity:1}
+}
+
+/* The Close Button */
+.close {
+    color: #ddd;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-header {
+    padding: 2px 16px;
+    background-color: #333;
+    border: 1px solid transparent;
+    color: #ddd;
+}
+
+.modal-body {
+    padding: 2px 16px;
+    color: #ddd;
+    font-size: 15px;
+    font-weight: 400;
+    border: 1px solid transparent;
+}
+
+.modal-footer {
+    padding: 2px 16px;
+    background-color: #333;
+    border: 1px solid transparent;
+    color: #ddd;
+}
+/*     end of modal      */
+
+/*     Sidebar Nav      */
+.sidenav.left, .sidenav.right {
+    /*height: 50%;*/
+    width: 0px;
+    position: fixed;
+    z-index: 50;
+    top: 5%;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    padding-bottom: 60px;
+    opacity: 0.7;
+}
+.sidenav.left {
+    left: 0;
+}
+.sidenav.right {
+    right: 0;
+    height: 100%;
+}
+
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 15px;
+    color: #818181;
+    display: block;
+    transition: 0.3s
+}
+
+.sidenav a:hover, .offcanvas a:focus{
+    color: #f1f1f1;
+}
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}
+
+/*     end of Sidebar Nav      */

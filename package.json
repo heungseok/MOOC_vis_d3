@@ -1,0 +1,22 @@
+{
+  "name": "mooc_vis_d3",
+  "version": "1.0.0",
+  "description": "course network visualization with d3",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heungseok/MOOC_vis_d3.git"
+  },
+  "author": "Heungseok Park",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/heungseok/MOOC_vis_d3/issues"
+  },
+  "homepage": "https://github.com/heungseok/MOOC_vis_d3#readme",
+  "dependencies": {
+    "express": "^4.15.4"
+  }
+}

@@ -1,0 +1,451 @@
+{
+  "time": 1,
+  "nodes": [
+    {
+      "size": 30.0,
+      "course_id": 0,
+      "attributes": {
+        "title": "Computing for Data Analysis",
+        "eigen": "0.0",
+        "out.degree": "2.0",
+        "subject": "Data Analysis",
+        "in.degree": "0.0",
+        "school": "Johns Hopkins University",
+        "name": "https://www.class-central.com/mooc/388/coursera-computing-for-data-analysis",
+        "provider": "Coursera",
+        "index": "classCentral-2796",
+        "betweeb": "0.0",
+        "area": "Data Science"
+      },
+      "y": -187.6919708251953,
+      "label": "n9",
+      "area_color": "rgb(52,47,105)",
+      "color": "rgb(240,249,232)",
+      "id": "n9",
+      "x": -126.900390625
+    },
+    {
+      "size": 40.0,
+      "course_id": 1,
+      "attributes": {
+        "title": "Model Thinking",
+        "eigen": "0.0",
+        "out.degree": "1.0",
+        "subject": "Economics",
+        "in.degree": "1.0",
+        "school": "University of Michigan",
+        "name": "https://www.class-central.com/mooc/317/coursera-model-thinking",
+        "provider": "Coursera",
+        "index": "classCentral-2444",
+        "betweeb": "1.0",
+        "area": "Social Sciences"
+      },
+      "y": 311.6156311035156,
+      "label": "n5",
+      "area_color": "rgb(118,124,43)",
+      "color": "rgb(65,154,184)",
+      "id": "n5",
+      "x": -4.523990154266357
+    },
+    {
+      "size": 30.0,
+      "course_id": 2,
+      "attributes": {
+        "title": "Social Network Analysis",
+        "eigen": "0.0",
+        "out.degree": "0.0",
+        "subject": "Economics",
+        "in.degree": "1.0",
+        "school": "University of Michigan",
+        "name": "https://www.class-central.com/mooc/338/coursera-social-network-analysis",
+        "provider": "Coursera",
+        "index": "classCentral-2895",
+        "betweeb": "0.0",
+        "area": "Social Sciences"
+      },
+      "y": -248.90170288085938,
+      "label": "n7",
+      "area_color": "rgb(118,124,43)",
+      "color": "rgb(240,249,232)",
+      "id": "n7",
+      "x": -74.34559631347656
+    },
+    {
+      "size": 50.0,
+      "course_id": 3,
+      "attributes": {
+        "title": "Technology and Ethics",
+        "eigen": "0.0",
+        "out.degree": "1.0",
+        "subject": "Philosophy",
+        "in.degree": "1.0",
+        "school": "Ohio State University",
+        "name": "https://www.class-central.com/mooc/1529/coursera-technology-and-ethics",
+        "provider": "Coursera",
+        "index": "classCentral-2844",
+        "betweeb": "2.0",
+        "area": "Arts and Humanities"
+      },
+      "y": -13.231301307678223,
+      "label": "n1",
+      "area_color": "rgb(134,42,49)",
+      "color": "rgb(8,104,172)",
+      "id": "n1",
+      "x": 305.77069091796875
+    },
+    {
+      "size": 30.0,
+      "course_id": 4,
+      "attributes": {
+        "title": "Natural Language Processing",
+        "eigen": "0.0",
+        "out.degree": "0.0",
+        "subject": "Computer Science",
+        "in.degree": "1.0",
+        "school": "Columbia University",
+        "name": "https://www.class-central.com/mooc/307/coursera-natural-language-processing",
+        "provider": "Coursera",
+        "index": "classCentral-2740",
+        "betweeb": "0.0",
+        "area": "Computer Science"
+      },
+      "y": 306.4534912109375,
+      "label": "n4",
+      "area_color": "rgb(40,69,98)",
+      "color": "rgb(240,249,232)",
+      "id": "n4",
+      "x": -94.37205505371094
+    },
+    {
+      "size": 30.0,
+      "course_id": 5,
+      "attributes": {
+        "title": "Algorithms: Design and Analysis, Part 1",
+        "eigen": "0.0",
+        "out.degree": "1.0",
+        "subject": "Algorithms",
+        "in.degree": "0.0",
+        "school": "Stanford University",
+        "name": "https://www.class-central.com/mooc/374/coursera-algorithms-design-and-analysis-part-1",
+        "provider": "Coursera",
+        "index": "classCentral-3123",
+        "betweeb": "0.0",
+        "area": "Computer Science"
+      },
+      "y": 30.611801147460938,
+      "label": "n8",
+      "area_color": "rgb(40,69,98)",
+      "color": "rgb(240,249,232)",
+      "id": "n8",
+      "x": -303.3751525878906
+    },
+    {
+      "size": 30.0,
+      "course_id": 6,
+      "attributes": {
+        "title": "An Introduction to Interactive Programming in Python (Part 1)",
+        "eigen": "0.0",
+        "out.degree": "1.0",
+        "subject": "Software Development",
+        "in.degree": "0.0",
+        "school": "Rice University",
+        "name": "https://www.class-central.com/mooc/408/coursera-an-introduction-to-interactive-programming-in-python-part-1",
+        "provider": "Coursera",
+        "index": "classCentral-2222",
+        "betweeb": "0.0",
+        "area": "Computer Science"
+      },
+      "y": 293.4519958496094,
+      "label": "n10",
+      "area_color": "rgb(40,69,98)",
+      "color": "rgb(240,249,232)",
+      "id": "n10",
+      "x": 83.60503387451172
+    },
+    {
+      "size": 30.0,
+      "course_id": 7,
+      "attributes": {
+        "title": "Understanding economic policymaking",
+        "eigen": "0.0",
+        "out.degree": "0.0",
+        "subject": "Governance and Society",
+        "in.degree": "2.0",
+        "school": "IE Business School",
+        "name": "https://www.class-central.com/mooc/707/coursera-understanding-economic-policymaking",
+        "provider": "Coursera",
+        "index": "classCentral-1353",
+        "betweeb": "0.0",
+        "area": "Social Sciences"
+      },
+      "y": 0.0008564469171687961,
+      "label": "n13",
+      "area_color": "rgb(118,124,43)",
+      "color": "rgb(240,249,232)",
+      "id": "n13",
+      "x": -0.0003821471764240414
+    },
+    {
+      "size": 30.0,
+      "course_id": 8,
+      "attributes": {
+        "title": "Fundamentals of Global Energy Business",
+        "eigen": "0.0",
+        "out.degree": "1.0",
+        "subject": "Environmental Science and Sustainability",
+        "in.degree": "0.0",
+        "school": "University of Colorado System",
+        "name": "https://www.class-central.com/mooc/1307/coursera-fundamentals-of-global-energy-business",
+        "provider": "Coursera",
+        "index": "classCentral-1821",
+        "betweeb": "0.0",
+        "area": "Physical Science and Engineering"
+      },
+      "y": 67.86112213134766,
+      "label": "n0",
+      "area_color": "rgb(77,50,117)",
+      "color": "rgb(240,249,232)",
+      "id": "n0",
+      "x": -40.3006591796875
+    },
+    {
+      "size": 40.0,
+      "course_id": 9,
+      "attributes": {
+        "title": "Functional Programming Principles in Scala",
+        "eigen": "0.0",
+        "out.degree": "1.0",
+        "subject": "Software Development",
+        "in.degree": "1.0",
+        "school": "?cole Polytechnique F?d?rale de Lausanne",
+        "name": "https://www.class-central.com/mooc/422/coursera-functional-programming-principles-in-scala",
+        "provider": "Coursera",
+        "index": "classCentral-1306",
+        "betweeb": "1.0",
+        "area": "Computer Science"
+      },
+      "y": -43.96693420410156,
+      "label": "n11",
+      "area_color": "rgb(40,69,98)",
+      "color": "rgb(65,154,184)",
+      "id": "n11",
+      "x": -252.5363006591797
+    },
+    {
+      "size": 30.0,
+      "course_id": 10,
+      "attributes": {
+        "title": "Analyzing Global Trends for Business and Society",
+        "eigen": "0.0",
+        "out.degree": "0.0",
+        "subject": "Business",
+        "in.degree": "1.0",
+        "school": "University of Pennsylvania",
+        "name": "https://www.class-central.com/mooc/1751/coursera-analyzing-global-trends-for-business-and-society",
+        "provider": "Coursera",
+        "index": "classCentral-2978",
+        "betweeb": "0.0",
+        "area": "Business"
+      },
+      "y": 58.005210876464844,
+      "label": "n2",
+      "area_color": "rgb(126,75,44)",
+      "color": "rgb(240,249,232)",
+      "id": "n2",
+      "x": 375.8687438964844
+    },
+    {
+      "size": 50.0,
+      "course_id": 11,
+      "attributes": {
+        "title": "International Human Rights Law: Prospects and Challenges",
+        "eigen": "0.0",
+        "out.degree": "1.0",
+        "subject": "Human Rights",
+        "in.degree": "1.0",
+        "school": "Duke University",
+        "name": "https://www.class-central.com/mooc/1771/coursera-international-human-rights-law-prospects-and-challenges",
+        "provider": "Coursera",
+        "index": "classCentral-3041",
+        "betweeb": "2.0",
+        "area": "Social Sciences"
+      },
+      "y": -54.32736587524414,
+      "label": "n3",
+      "area_color": "rgb(118,124,43)",
+      "color": "rgb(8,104,172)",
+      "id": "n3",
+      "x": 184.97532653808594
+    },
+    {
+      "size": 30.0,
+      "course_id": 12,
+      "attributes": {
+        "title": "The Emergence of the Modern Middle East - Part I",
+        "eigen": "0.0",
+        "out.degree": "2.0",
+        "subject": "History",
+        "in.degree": "0.0",
+        "school": "Tel Aviv University",
+        "name": "https://www.class-central.com/mooc/976/coursera-the-emergence-of-the-modern-middle-east-part-i",
+        "provider": "Coursera",
+        "index": "classCentral-1693",
+        "betweeb": "0.0",
+        "area": "Arts and Humanities"
+      },
+      "y": -33.15629577636719,
+      "label": "n14",
+      "area_color": "rgb(134,42,49)",
+      "color": "rgb(240,249,232)",
+      "id": "n14",
+      "x": 79.0716781616211
+    },
+    {
+      "size": 30.0,
+      "course_id": 13,
+      "attributes": {
+        "title": "Internet History, Technology, and Security",
+        "eigen": "0.0",
+        "out.degree": "0.0",
+        "subject": "Computer Security and Networks",
+        "in.degree": "0.0",
+        "school": "University of Michigan",
+        "name": "https://www.class-central.com/mooc/335/coursera-internet-history-technology-and-security",
+        "provider": "Coursera",
+        "index": "classCentral-1592",
+        "betweeb": "0.0",
+        "area": "Computer Science"
+      },
+      "y": -409.05908203125,
+      "label": "n6",
+      "area_color": "rgb(40,69,98)",
+      "color": "rgb(240,249,232)",
+      "id": "n6",
+      "x": 285.80401611328125
+    },
+    {
+      "size": 30.0,
+      "course_id": 14,
+      "attributes": {
+        "title": "Foundations of Business Strategy",
+        "eigen": "0.0",
+        "out.degree": "0.0",
+        "subject": "Business Strategy",
+        "in.degree": "2.0",
+        "school": "University of Virginia",
+        "name": "https://www.class-central.com/mooc/546/coursera-foundations-of-business-strategy",
+        "provider": "Coursera",
+        "index": "classCentral-2516",
+        "betweeb": "0.0",
+        "area": "Business"
+      },
+      "y": -118.84832000732422,
+      "label": "n12",
+      "area_color": "rgb(126,75,44)",
+      "color": "rgb(240,249,232)",
+      "id": "n12",
+      "x": -186.25762939453125
+    }
+  ],
+  "edges": [
+    {
+      "size": 1.0,
+      "target": 4,
+      "attributes": {},
+      "source": 1,
+      "color": "rgb(152,201,208)",
+      "id": "6315",
+      "area_color": "rgb(118,124,43)"
+    },
+    {
+      "size": 1.0,
+      "target": 10,
+      "attributes": {},
+      "source": 3,
+      "color": "rgb(124,176,202)",
+      "id": "6313",
+      "area_color": "rgb(134,42,49)"
+    },
+    {
+      "size": 1.0,
+      "target": 14,
+      "attributes": {},
+      "source": 0,
+      "color": "rgb(240,249,232)",
+      "id": "6307",
+      "area_color": "rgb(52,47,105)"
+    },
+    {
+      "size": 1.0,
+      "target": 2,
+      "attributes": {},
+      "source": 0,
+      "color": "rgb(240,249,232)",
+      "id": "6308",
+      "area_color": "rgb(52,47,105)"
+    },
+    {
+      "size": 1.0,
+      "target": 7,
+      "attributes": {},
+      "source": 12,
+      "color": "rgb(240,249,232)",
+      "id": "6310",
+      "area_color": "rgb(134,42,49)"
+    },
+    {
+      "size": 1.0,
+      "target": 3,
+      "attributes": {},
+      "source": 11,
+      "color": "rgb(8,104,172)",
+      "id": "6312",
+      "area_color": "rgb(118,124,43)"
+    },
+    {
+      "size": 1.0,
+      "target": 11,
+      "attributes": {},
+      "source": 12,
+      "color": "rgb(124,176,202)",
+      "id": "6311",
+      "area_color": "rgb(134,42,49)"
+    },
+    {
+      "size": 1.0,
+      "target": 1,
+      "attributes": {},
+      "source": 6,
+      "color": "rgb(152,201,208)",
+      "id": "6314",
+      "area_color": "rgb(40,69,98)"
+    },
+    {
+      "size": 1.0,
+      "target": 14,
+      "attributes": {},
+      "source": 9,
+      "color": "rgb(152,201,208)",
+      "id": "6306",
+      "area_color": "rgb(40,69,98)"
+    },
+    {
+      "size": 1.0,
+      "target": 7,
+      "attributes": {},
+      "source": 8,
+      "color": "rgb(240,249,232)",
+      "id": "6309",
+      "area_color": "rgb(77,50,117)"
+    },
+    {
+      "size": 1.0,
+      "target": 9,
+      "attributes": {},
+      "source": 5,
+      "color": "rgb(152,201,208)",
+      "id": "6305",
+      "area_color": "rgb(40,69,98)"
+    }
+  ]
+}
