@@ -5,21 +5,19 @@ var width = document.getElementById("d3_container").offsetWidth,
 var svg = d3.select("#d3_container").append("svg"),
     // width = +svg.attr("width"),
     // height= +svg.attr("height"),
-    g = svg.append("g")
-        // .attr("transform", "translate(" + width/2 + "," + height/2 + ")"); // if using force
+    g = svg.append("g"),
+    transform = d3.zoomIdentity;
 
-
-
-
-var simulation = d3.forceSimulation()
-    .force("link", d3.forceLink().id(function(d) { return d.id; }))
-    .force("charge", d3.forceManyBody())
-    .force("center", d3.forceCenter(width / 2, height / 2));
 
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 var x = d3.scaleLinear().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
+
+var line = d3.line()
+    // .curve(d3.curveMonotoneX)
+    // .x(function(d){ console.log(d); return x(d)})
+    // .y(function(d){ return y(d)});
 
 var nodes,
     links;
@@ -30,11 +28,119 @@ var nodes,
  */
 $(document).ready(function(){
     initD3();
-    // initD3_withForce();
-    // init();
-    // init_parcoords();
-
 });
+
+
+function initD3(){
+
+    // d3.json("./data/modularity_k4_CPM_perf_log_t3_cc.json", function(error, graph){
+    d3.json("./data/C19_color_encoded(good3).json", function(error, graph){
+        console.log(graph);
+
+        nodes = graph.nodes.map(function(d){
+            return {
+                'index' : d.id,
+                'x' : d.x,
+                'y' : d.y,
+                'label' : d.attributes.area,
+                'color': d.color
+            }
+        });
+
+        // set the x, y domain using _.pluck
+        // var x0 = _.pluck(graph.nodes, 'x');
+        // var y0 = _.pluck(graph.nodes, 'y');
+        var x0 = d3.extent(nodes, function(d){ return d.x;});
+        var y0 = d3.extent(nodes, function(d){ return d.y;})
+
+        // 상화좌우로 100씩 확장.
+        // x.domain([ x0[0]-1000, x0[1]+1000 ]);
+        // y.domain([ y0[0]-1000, y0[1]+1000 ]);
+        x.domain(x0);
+        y.domain(y0);
+        // y.domain(d3.extent(nodes, function(d){ return d.y;}));
+
+
+        links = graph.edges.map(function(d){
+            return {
+                'source': d.source,
+                'target': d.target,
+                'color': d.color
+
+            }
+        });
+
+/*
+        // draw each edge using line
+        g.append("g")
+            .attr("class", "edges")
+            .attr("stroke", "#000")
+            .attr("stroke-width", 0.5)
+            .selectAll("line")
+            .data(links)
+            .enter().append("line")
+            .attr("stroke", function(d) { return d.color; })
+            .attr("x1", function(d) { return x(findNodePositionX(d.source)); })
+            .attr("y1", function(d) { return y(findNodePositionY(d.source)); })
+            .attr("x2", function(d) { return x(findNodePositionX(d.target)); })
+            .attr("y2", function(d) { return y(findNodePositionY(d.target)); });
+*/
+
+        // draw each edge using path
+        g.append("g")
+            .attr("class", "edges")
+            .attr("stroke", "#000")
+            .attr("stroke-width", 0.5)
+            .selectAll("line")
+            .data(links)
+            .enter().append("path")
+            .attr("class", "line")
+            .attr("stroke", function(d) { return d.color; })
+            .attr("d", function(d) { return line( [
+                [x(findNodePositionX(d.source)), y(findNodePositionY(d.source))],
+                [x(findNodePositionX(d.target)), y(findNodePositionY(d.target))]
+            ])});
+
+        g.append("g")
+            .attr("class", "nodes")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 0.01)
+            .selectAll("circle")
+            .data(nodes)
+            .enter().append("circle")
+            .attr("fill", function(d) { return d.color; })
+            .attr("cx", function(d) { return x(d.x); })
+            .attr("cy", function(d) { return y(d.y); })
+            .attr("r", 2.5)
+            .call(d3.drag()
+                .on("drag", dragged));
+
+        svg.call(d3.zoom()
+            .scaleExtent([1 / 2, 8])
+            .on("zoom", zoomed))
+
+    });
+
+}
+function zoomed(){
+    g.select("g.nodes").attr("transform", d3.event.transform);
+    g.select("g.edges").attr("transform", d3.event.transform);
+}
+
+function dragged(d){
+    d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+}
+
+
+function findNodePositionX(id){
+    var temp_x = _.where(nodes, {index: id});
+    return temp_x[0].x;
+}
+function findNodePositionY(id){
+    var temp_y = _.where(nodes, {index: id});
+    return temp_y[0].y;
+}
+
 
 function initD3_withForce(){
     // d3.json("./data/modularity_k4_CPM_perf_log_t3_cc.json", function(error, graph){
@@ -100,142 +206,8 @@ function initD3_withForce(){
 
         console.log("node, link parsing finished")
 
-
-
-        // simulation.tick();
-
-        console.log("simulation initiated")
-/*
-        g.append("g")
-            .attr("stroke", "#000")
-            .attr("stroke-width", 1)
-            .selectAll("line")
-            .data(links)
-            .enter().append("line")
-            .attr("x1", function(d) { return d.source.x; })
-            .attr("y1", function(d) { return d.source.y; })
-            .attr("x2", function(d) { return d.target.x; })
-            .attr("y2", function(d) { return d.target.y; });
-            // .attr("x1", function(d) { return findNodePositionX(d.source); })
-            // .attr("y1", function(d) { return findNodePositionY(d.source); })
-            // .attr("x2", function(d) { return findNodePositionX(d.target); })
-            // .attr("y2", function(d) { return findNodePositionY(d.target); });
-
-        g.append("g")
-            .attr("stroke", "#fff")
-            .attr("stroke-width", 1.5)
-            .selectAll("circle")
-            .data(nodes)
-            .enter().append("circle")
-            .attr("cx", function(d) { return d.x; })
-            .attr("cy", function(d) { return d.y; })
-            .attr("r", 4.5);*/
-/*
-
-
-        g.append("g")
-            .attr("class", "network")
-            .attr("transform", )
-
-
-        g.append("g")
-            .attr("stroke", "#fff")
-            .attr("stroke-width", 0.01)
-            .attr("fill", "red")
-            .selectAll("circle")
-            .data(nodes)
-            .enter().append("circle")
-            .attr("cx", function(d) { return x(d.x); })
-            .attr("cy", function(d) { return y(d.y); })
-            .attr("r", 2.5);
-
-        console.log(findNodePositionX(links[0].target   ))
-
-        g.append("g")
-            .attr("stroke", "#000")
-            .attr("stroke-width", 1.5)
-            .selectAll("line")
-            .data(links)
-            .enter().append("line")
-            .attr("x1", function(d) { return x(findNodePositionX(d.source)); })
-            .attr("y1", function(d) { return y(findNodePositionX(d.source)); })
-            .attr("x2", function(d) { return x(findNodePositionX(d.target)); })
-            .attr("y2", function(d) { return y(findNodePositionX(d.target)); });
-
-*/
-
     });
 
-}
-
-function initD3(){
-
-    // d3.json("./data/modularity_k4_CPM_perf_log_t3_cc.json", function(error, graph){
-    d3.json("./data/C19_color_encoded(good3).json", function(error, graph){
-        console.log(graph);
-
-        nodes = graph.nodes.map(function(d){
-            return {
-                'index' : d.id,
-                'x' : d.x,
-                'y' : d.y,
-                'label' : d.attributes.area,
-                'color': d.color
-            }
-        });
-
-        // set the x, y domain using _.pluck
-        // var x0 = _.pluck(graph.nodes, 'x');
-        // var y0 = _.pluck(graph.nodes, 'y');
-        x.domain(d3.extent(nodes, function(d){ return d.x;}));
-        y.domain(d3.extent(nodes, function(d){ return d.y;}));
-
-
-        links = graph.edges.map(function(d){
-            return {
-                'source': d.source,
-                'target': d.target,
-                'color': d.color
-
-            }
-        });
-
-        g.append("g")
-            .attr("stroke", "#000")
-            .attr("stroke-width", 0.5)
-            .selectAll("line")
-            .data(links)
-            .enter().append("line")
-            .attr("stroke", function(d) { return d.color; })
-            .attr("x1", function(d) { return x(findNodePositionX(d.source)); })
-            .attr("y1", function(d) { return y(findNodePositionY(d.source)); })
-            .attr("x2", function(d) { return x(findNodePositionX(d.target)); })
-            .attr("y2", function(d) { return y(findNodePositionY(d.target)); });
-
-        g.append("g")
-            .attr("stroke", "#fff")
-            .attr("stroke-width", 0.01)
-            .selectAll("circle")
-            .data(nodes)
-            .enter().append("circle")
-            .attr("fill", function(d) { return d.color; })
-            .attr("cx", function(d) { return x(d.x); })
-            .attr("cy", function(d) { return y(d.y); })
-            .attr("r", 2.5);
-
-
-
-    });
-
-}
-
-function findNodePositionX(id){
-    var temp_x = _.where(nodes, {index: id});
-    return temp_x[0].x;
-}
-function findNodePositionY(id){
-    var temp_y = _.where(nodes, {index: id});
-    return temp_y[0].y;
 }
 
 function init() {
