@@ -22,6 +22,11 @@ var line = d3.line()
 var nodes,
     links;
 
+// tooltip
+var tooltip = d3.select("#d3_container").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
 
 /*
  json data import and push to network array
@@ -42,7 +47,7 @@ function initD3(){
                 'index' : d.id,
                 'x' : d.x,
                 'y' : d.y,
-                'label' : d.attributes.area,
+                'area' : d.attributes.area,
                 'color': d.color
             }
         });
@@ -112,6 +117,19 @@ function initD3(){
             .attr("cx", function(d) { return x(d.x); })
             .attr("cy", function(d) { return y(d.y); })
             .attr("r", 2.5)
+            .on("mouseover", function(d) {
+                tooltip.transition()
+                    .duration(100)
+                    .style("opacity", .9);
+                tooltip.html(d.area)
+                    .style("left", (d3.event.pageX + 5) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
+            })
+            .on("mouseout", function(d) {
+                tooltip.transition()
+                    .duration(100)
+                    .style("opacity", 0);
+            })
             .call(d3.drag()
                 .on("drag", dragged));
 
