@@ -1,56 +1,241 @@
-/**
- * Created by heungseok2 on 2017-07-27.
- */
+
+var width = document.getElementById("d3_container").offsetWidth,
+    height = document.getElementById("d3_container").offsetHeight;
+
+var svg = d3.select("#d3_container").append("svg"),
+    // width = +svg.attr("width"),
+    // height= +svg.attr("height"),
+    g = svg.append("g")
+        // .attr("transform", "translate(" + width/2 + "," + height/2 + ")"); // if using force
 
 
 
-///////////////// sigma network global data /////////////////////
-var network_arr = [];
-var array_index = 0;
-var current_time = 1;
-var time_period_map={
-    1:"7.13.~6.14.",
-    2:"7.14.~6.15.",
-    3:"7.15.~6.16.",
-    4:"7.16.~6.17.",
-};
-// var platform = "ClassCentral";
-var platform = "CourseTalk";
-var s,
-    g = {
-        nodes: [],
-        edges: []
-    };
-// s: sigma object, g: graph(network) object
 
-var url_arr = [
-    "./data/t1_" + platform + "_network.json",
-    "./data/t2_" + platform + "_network.json",
-    "./data/t3_" + platform + "_network.json",
-    "./data/t4_" + platform + "_network.json"
-];
+var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function(d) { return d.id; }))
+    .force("charge", d3.forceManyBody())
+    .force("center", d3.forceCenter(width / 2, height / 2));
 
-///////////////// parcoords global data /////////////////////
-var parcoords = d3.parcoords()("#pc-container")
-// this data is used to access POC data as global variable, the usage is find edge in the POC, and sync with network.
-var global_data;
-var par_data;
+var color = d3.scaleOrdinal(d3.schemeCategory20);
 
+var x = d3.scaleLinear().range([0, width]);
+var y = d3.scaleLinear().range([height, 0]);
+
+var nodes,
+    links;
 
 
 /*
  json data import and push to network array
  */
 $(document).ready(function(){
-    init();
-    init_parcoords();
+    initD3();
+    // initD3_withForce();
+    // init();
+    // init_parcoords();
 
 });
 
+function initD3_withForce(){
+    // d3.json("./data/modularity_k4_CPM_perf_log_t3_cc.json", function(error, graph){
+    d3.json("./data/C19_color_encoded(good3).json", function(error, graph){
+    // d3.json("./data/t1_classCentral_network.json", function(error, graph){
+        console.log(graph);
+
+/*
+        nodes = graph.nodes.map(function(d){
+            return {
+                'index' : d.id,
+                'x' : d.x,
+                'y' : d.y,
+                // 'label' : d.attributes.area
+            }
+        });
+*/
+
+
+        // set the x, y domain using _.pluck
+        // var x0 = _.pluck(graph.nodes, 'x');
+        // var y0 = _.pluck(graph.nodes, 'y');
+        // x.domain(d3.extent(nodes, function(d){ return d.x;}));
+        // y.domain(d3.extent(nodes, function(d){ return d.y;}));
+
+
+        var link_svg = svg.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(graph.edges)
+            .enter().append("line")
+            .attr("stroke-width", function(d) { return Math.sqrt(d.size); });
+
+        var node_svg = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("circle")
+            .data(graph.nodes)
+            .enter().append("circle")
+            .attr("r", 5)
+            .attr("fill", function(d) { return d.color; })
+
+        node_svg.append("title")
+            .text(function(d) { return d.id; });
+
+        simulation
+            .nodes(graph.nodes)
+            .on("tick" ,ticked)
+
+        simulation.force("link")
+            .links(graph.edges)
+
+        function ticked(){
+            link_svg
+                .attr("x1", function(d) { return d.source.x; })
+                .attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; })
+                .attr("y2", function(d) { return d.target.y; });
+
+            node_svg
+                .attr("cx", function(d) { return d.x; })
+                .attr("cy", function(d) { return d.y; });
+        }
+
+        console.log("node, link parsing finished")
+
+
+
+        // simulation.tick();
+
+        console.log("simulation initiated")
+/*
+        g.append("g")
+            .attr("stroke", "#000")
+            .attr("stroke-width", 1)
+            .selectAll("line")
+            .data(links)
+            .enter().append("line")
+            .attr("x1", function(d) { return d.source.x; })
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; });
+            // .attr("x1", function(d) { return findNodePositionX(d.source); })
+            // .attr("y1", function(d) { return findNodePositionY(d.source); })
+            // .attr("x2", function(d) { return findNodePositionX(d.target); })
+            // .attr("y2", function(d) { return findNodePositionY(d.target); });
+
+        g.append("g")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 1.5)
+            .selectAll("circle")
+            .data(nodes)
+            .enter().append("circle")
+            .attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; })
+            .attr("r", 4.5);*/
+/*
+
+
+        g.append("g")
+            .attr("class", "network")
+            .attr("transform", )
+
+
+        g.append("g")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 0.01)
+            .attr("fill", "red")
+            .selectAll("circle")
+            .data(nodes)
+            .enter().append("circle")
+            .attr("cx", function(d) { return x(d.x); })
+            .attr("cy", function(d) { return y(d.y); })
+            .attr("r", 2.5);
+
+        console.log(findNodePositionX(links[0].target   ))
+
+        g.append("g")
+            .attr("stroke", "#000")
+            .attr("stroke-width", 1.5)
+            .selectAll("line")
+            .data(links)
+            .enter().append("line")
+            .attr("x1", function(d) { return x(findNodePositionX(d.source)); })
+            .attr("y1", function(d) { return y(findNodePositionX(d.source)); })
+            .attr("x2", function(d) { return x(findNodePositionX(d.target)); })
+            .attr("y2", function(d) { return y(findNodePositionX(d.target)); });
+
+*/
+
+    });
+
+}
+
 function initD3(){
-    
+
+    // d3.json("./data/modularity_k4_CPM_perf_log_t3_cc.json", function(error, graph){
+    d3.json("./data/C19_color_encoded(good3).json", function(error, graph){
+        console.log(graph);
+
+        nodes = graph.nodes.map(function(d){
+            return {
+                'index' : d.id,
+                'x' : d.x,
+                'y' : d.y,
+                'label' : d.attributes.area,
+                'color': d.color
+            }
+        });
+
+        // set the x, y domain using _.pluck
+        // var x0 = _.pluck(graph.nodes, 'x');
+        // var y0 = _.pluck(graph.nodes, 'y');
+        x.domain(d3.extent(nodes, function(d){ return d.x;}));
+        y.domain(d3.extent(nodes, function(d){ return d.y;}));
 
 
+        links = graph.edges.map(function(d){
+            return {
+                'source': d.source,
+                'target': d.target,
+                'color': d.color
+
+            }
+        });
+
+        g.append("g")
+            .attr("stroke", "#000")
+            .attr("stroke-width", 0.5)
+            .selectAll("line")
+            .data(links)
+            .enter().append("line")
+            .attr("stroke", function(d) { return d.color; })
+            .attr("x1", function(d) { return x(findNodePositionX(d.source)); })
+            .attr("y1", function(d) { return y(findNodePositionY(d.source)); })
+            .attr("x2", function(d) { return x(findNodePositionX(d.target)); })
+            .attr("y2", function(d) { return y(findNodePositionY(d.target)); });
+
+        g.append("g")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 0.01)
+            .selectAll("circle")
+            .data(nodes)
+            .enter().append("circle")
+            .attr("fill", function(d) { return d.color; })
+            .attr("cx", function(d) { return x(d.x); })
+            .attr("cy", function(d) { return y(d.y); })
+            .attr("r", 2.5);
+
+
+
+    });
+
+}
+
+function findNodePositionX(id){
+    var temp_x = _.where(nodes, {index: id});
+    return temp_x[0].x;
+}
+function findNodePositionY(id){
+    var temp_y = _.where(nodes, {index: id});
+    return temp_y[0].y;
 }
 
 function init() {
