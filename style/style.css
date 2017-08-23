@@ -103,7 +103,16 @@ input[type=range] {
 
 
 
+/*  tooltip */
+.tooltip{
+    color: black;
+    width: 200px;
+    border: 1px solid black;
+    box-sizing: border-box;
+    background-color: white;
+    padding-left: 10px;
 
+}
 
 
 

@@ -48,6 +48,7 @@ function initD3(){
                 'x' : d.x,
                 'y' : d.y,
                 'area' : d.attributes.area,
+                'subject': d.attributes.subject,
                 'color': d.color
             }
         });
@@ -58,7 +59,7 @@ function initD3(){
         var x0 = d3.extent(nodes, function(d){ return d.x;});
         var y0 = d3.extent(nodes, function(d){ return d.y;})
 
-        // 상화좌우로 100씩 확장.
+        // 상화좌우로 100씩 확장. 실패.
         // x.domain([ x0[0]-1000, x0[1]+1000 ]);
         // y.domain([ y0[0]-1000, y0[1]+1000 ]);
         x.domain(x0);
@@ -120,15 +121,23 @@ function initD3(){
             .on("mouseover", function(d) {
                 tooltip.transition()
                     .duration(100)
-                    .style("opacity", .9);
-                tooltip.html(d.area)
+                    .style("opacity", .9)
+                    .style("display", "block");
+
+                tooltip.html(
+                    "Area: " + d.area +
+                    "</br> Subject: " + d.subject +
+                    "</br>"
+                )
                     .style("left", (d3.event.pageX + 5) + "px")
                     .style("top", (d3.event.pageY - 28) + "px");
             })
             .on("mouseout", function(d) {
                 tooltip.transition()
                     .duration(100)
-                    .style("opacity", 0);
+                    .style("opacity", 0)
+                    .style("display", "none");
+
             })
             .call(d3.drag()
                 .on("drag", dragged));
