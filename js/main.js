@@ -19,6 +19,17 @@ var line = d3.line()
     // .x(function(d){ console.log(d); return x(d)})
     // .y(function(d){ return y(d)});
 
+
+// *********** pie element for overlapping node ********** //
+var pie = d3.pie()
+    .sort(null)
+    .value(function(d) { return d.overlapping_communities_value; });
+
+var path = d3.arc()
+    .outerRadius(30)
+    .innerRadius(0);
+
+
 var course_info;
 var nodes,
     links;
@@ -47,23 +58,16 @@ function initD3(){
 
         d3.csv("./data/MOOC_parcoord_data_only_net_available.csv", function(courses){
             console.log(courses);
-
-
+            console.log(graph);
             // ************* 1. Course data parsing by global time variable ************ //
-
-
             course_info = _.where(courses, {time: String(current_time), review_platform: current_platform });
 
-
-            console.log(graph);
 
             nodes = graph.nodes.map(function(d){
 
                 var res_findWhere = _.findWhere(course_info, {url: d.attributes.name });
-
                 if(res_findWhere !== undefined){
                     return {
-
                         // node info
                         'index' : d.id,
                         'x' : d.x,
@@ -79,9 +83,6 @@ function initD3(){
                         'area': res_findWhere.area,
                         'subject': res_findWhere.subject,
                         'school': res_findWhere.school
-
-
-
                     }
                 }else{
                     return {
@@ -104,10 +105,6 @@ function initD3(){
             });
 
             console.log(nodes);
-
-            // set the x, y domain using _.pluck
-            // var x0 = _.pluck(graph.nodes, 'x');
-            // var y0 = _.pluck(graph.nodes, 'y');
             var x0 = d3.extent(nodes, function(d){ return d.x;});
             var y0 = d3.extent(nodes, function(d){ return d.y;})
 
@@ -117,14 +114,12 @@ function initD3(){
             x.domain(x0);
             y.domain(y0);
             // y.domain(d3.extent(nodes, function(d){ return d.y;}));
-
-
             links = graph.edges.map(function(d){
                 return {
                     'source': d.source,
                     'target': d.target,
-                    'color': d.color
-
+                    'color': d.color,
+                    'size': d.size
                 }
             });
 
@@ -198,6 +193,47 @@ function initD3(){
                 .call(d3.drag()
                     .on("drag", dragged));
 
+            // ********** overlay pie chart on the node circle *********** //
+            var overlapping_nodes = nodes.filter(function(d) {
+
+                if (+d.overlap_num > 1) {
+                    return true;
+                }
+                return false; // skip
+
+            }).map(function(filtered_d){
+                return {
+                    'index' : filtered_d.index,
+                    'x' : filtered_d.x,
+                    'y' : filtered_d.y,
+                    'overlapping_communities': filtered_d.community.split("+"),
+
+                    // 나중에 노드의 이웃의 community 비율로 대체.
+                    'overlapping_communities_value': Array(+filtered_d.overlap_num).fill(1+ Math.floor(Math.random() * 9))
+
+                }
+            });
+
+            console.log(overlapping_nodes);
+
+            var arc = g.append("g")
+                .attr("class", "overlapping_node")
+                .selectAll(".arc")
+                .data(overlapping_nodes)
+                .enter().append("g")
+                .attr("transform", "translate(20,20)") // node 위치로 조정할 것.
+                .attr("class", "arc");
+
+            // 여기서부터 다시 수정해야할 듯...
+            arc.append("path")
+                .attr("d", path)
+                // .attr("fill", function(d) { return color(d.data.age); });
+
+
+
+
+
+            // ********** Drag zoom initialize ************* //
             svg.call(d3.zoom()
                 .scaleExtent([1 / 2, 8])
                 .on("zoom", zoomed))
