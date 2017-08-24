@@ -107,15 +107,21 @@ input[type=range] {
 .tooltip{
     color: black;
     width: 200px;
-    border: 1px solid black;
+    border: 1px solid lightgrey;
     box-sizing: border-box;
     background-color: white;
-    padding-left: 10px;
+
+    white-space: normal;
+    word-break:break-all;
+
+    padding: 10px 10px 10px 10px;
+    /*padding-left: 10px;*/
+    /*padding-top: 10px;*/
+    /*padding-top: 10px;*/
+
+
 
 }
-
-
-
 
 
 
