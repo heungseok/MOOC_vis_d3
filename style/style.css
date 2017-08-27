@@ -102,7 +102,6 @@ input[type=range] {
 
 
 
-
 /*  tooltip */
 .tooltip{
     color: black;
@@ -119,9 +118,20 @@ input[type=range] {
     /*padding-top: 10px;*/
     /*padding-top: 10px;*/
 
+}
 
+path.line {
+    stroke-opacity: 0.3;
+    /*fill-opacity: 0.3;*/
 
 }
+
+path.hull {
+    /*fill: lightsteelblue;*/
+    fill-opacity: 0.2;
+    stroke-width: 0.01;
+}
+
 
 
 

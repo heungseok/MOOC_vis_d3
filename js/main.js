@@ -37,6 +37,80 @@ var nodes,
 var current_time = 3;
 var current_platform = "classCentral";
 
+
+var color_by_communities = [];
+var getColor = function(d){
+    for(var i=0; i<color_by_communities.length; i++){
+        if(color_by_communities[i].comm_id === d){
+            return color_by_communities[i].color;
+        }
+    }
+}
+
+/************** convex hull variable, function **********************/
+var hullPadding = 10;
+
+// Point/Vector Operations
+var vecFrom = function (p0, p1) {               // Vector from p0 to p1
+    return [ p1[0] - p0[0], p1[1] - p0[1] ];
+};
+
+var vecScale = function (v, scale) {            // Vector v scaled by 'scale'
+    return [ scale * v[0], scale * v[1] ];
+};
+
+var vecSum = function (pv1, pv2) {              // The sum of two points/vectors
+    return [ pv1[0] + pv2[0], pv1[1] + pv2[1] ];
+};
+
+var vecUnit = function (v) {                    // Vector with direction of v and length 1
+    var norm = Math.sqrt (v[0]*v[0] + v[1]*v[1]);
+    return vecScale (v, 1/norm);
+};
+
+var vecScaleTo = function (v, length) {         // Vector with direction of v with specified length
+    return vecScale (vecUnit(v), length);
+};
+
+var unitNormal = function (pv0, p1) {           // Unit normal to vector pv0, or line segment from p0 to p1
+    if (p1 != null) pv0 = vecFrom (pv0, p1);
+    var normalVec = [ -pv0[1], pv0[0] ];
+    return vecUnit (normalVec);
+};
+
+// Hull Generators
+
+var lineFn = d3.line()
+    .curve (d3.curveCatmullRomClosed)
+    .x (function(d) { return d.p[0]; })
+    .y (function(d) { return d.p[1]; });
+
+var smoothHull = function (polyPoints) {
+    // Returns the SVG path data string representing the polygon, expanded and smoothed.
+    var pointCount = polyPoints.length;
+
+    // Handle special cases
+    if (!polyPoints || pointCount < 1) return "";
+
+    var hullPoints = polyPoints.map (function (point, index) {
+        var pNext = polyPoints [(index + 1) % pointCount];
+        return {
+            p: point,
+            v: vecUnit (vecFrom (point, pNext))
+        };
+    });
+
+    // Compute the expanded hull points, and the nearest prior control point for each.
+    for (var i = 0;  i < hullPoints.length;  ++i) {
+        var priorIndex = (i > 0) ? (i-1) : (pointCount - 1);
+        var extensionVec = vecUnit (vecSum (hullPoints[priorIndex].v, vecScale (hullPoints[i].v, -1)));
+        hullPoints[i].p = vecSum (hullPoints[i].p, vecScale (extensionVec, hullPadding));
+    }
+
+    return lineFn (hullPoints);
+};
+
+
 // ********** tooltip *************
 var tooltip = d3.select("#d3_container").append("div")
     .attr("class", "tooltip")
@@ -62,8 +136,29 @@ function initD3(){
             // ************* 1. Course data parsing by global time variable ************ //
             course_info = _.where(courses, {time: String(current_time), review_platform: current_platform });
 
-
+            var communities = [];
+            
             nodes = graph.nodes.map(function(d){
+
+                if(Number(d.attributes.overlap_num) > 1){
+                    d.attributes.community.split("+").forEach(function (c) {
+                        if(!_.contains(communities, c)){
+                            communities.push(c);
+                        }
+
+                    })
+                }else if(Number(d.attributes.overlap_num) < 2 && d.attributes.community != 'null'){
+                    if(!_.contains(communities, d.attributes.community)){
+                        communities.push(d.attributes.community)
+
+                    }
+
+                    if(_.findWhere(color_by_communities, { comm_id: d.attributes.community }) === undefined){
+                        color_by_communities.push({comm_id:d.attributes.community, color:d.color});
+                    }
+
+                }
+
 
                 var res_findWhere = _.findWhere(course_info, {url: d.attributes.name });
                 if(res_findWhere !== undefined){
@@ -139,7 +234,35 @@ function initD3(){
              .attr("y2", function(d) { return y(findNodePositionY(d.target)); });
              */
 
-            // draw each edge using path
+            // ******************** cluster overlayed convex hull ************** //
+            g.append("g")
+                .attr("class", "communities")
+                .selectAll("path")
+                .data(communities)
+                .enter().append("path")
+                .attr("class", "hull")
+                .attr("fill", function(d) { return getColor(d); })
+                .attr('d', function(d){
+                    // d is community
+                    // console.log(d);
+                    var points = [];
+                    nodes.forEach(function (node) {
+                        if(Number(node.overlap_num) > 1){
+                            if(_.contains(node.community.split("+"), d))
+                                points.push([x(node.x), y(node.y), node.index])
+                        }else{
+                            if(d == node.community)
+                                points.push([x(node.x), y(node.y), node.index])
+                        }
+                    });
+                    // console.log(points);
+                    var convexHull = d3.polygonHull(points);
+                    return smoothHull(convexHull);
+
+                });
+
+            // ******************** draw each edge using path ******************** //
+
             g.append("g")
                 .attr("class", "edges")
                 .attr("stroke", "#000")
@@ -155,6 +278,8 @@ function initD3(){
                     [x(findNodePositionX(d.target)), y(findNodePositionY(d.target))]
                 ])});
 
+
+            // ******************** draw node ******************** //
             g.append("g")
                 .attr("class", "nodes")
                 .attr("stroke", "#fff")
@@ -165,7 +290,7 @@ function initD3(){
                 .attr("fill", function(d) { return d.color; })
                 .attr("cx", function(d) { return x(d.x); })
                 .attr("cy", function(d) { return y(d.y); })
-                .attr("r", function(d) { return 0.001 + (+d.overlap_num); })
+                .attr("r", function(d) { return 0.001 + (+d.overlap_num*2); })
                 .on("mouseover", function(d) {
                     tooltip.transition()
                         .duration(100)
@@ -193,7 +318,12 @@ function initD3(){
                 .call(d3.drag()
                     .on("drag", dragged));
 
+
+
+
+
             // ********** overlay pie chart on the node circle *********** //
+            /*
             var overlapping_nodes = nodes.filter(function(d) {
 
                 if (+d.overlap_num > 1) {
@@ -229,7 +359,7 @@ function initD3(){
                 .attr("d", path)
                 // .attr("fill", function(d) { return color(d.data.age); });
 
-
+*/
 
 
 
@@ -247,6 +377,7 @@ function initD3(){
 function zoomed(){
     g.select("g.nodes").attr("transform", d3.event.transform);
     g.select("g.edges").attr("transform", d3.event.transform);
+    g.select("g.communities").attr("transform", d3.event.transform);
 }
 
 function dragged(d){
