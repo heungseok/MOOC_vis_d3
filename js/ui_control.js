@@ -20,10 +20,20 @@ function control_network_component(item) {
     }else{
         document.getElementById(item.value).style.display = "none";
     }
-
-
 }
 
+function cb_mouseOver(item) {
+    var id = item.innerText.replace(" ","");
+    $("#"+id).css("display", "");
+}
+function cb_mouseOut(item) {
+    var id = item.innerText.replace(" ","");
+
+    if($('input.cb_network[type=checkbox][value='+ id +']').prop('checked') == false){
+        $("#"+id).css("display", "none");
+    }
+
+}
 
 
 

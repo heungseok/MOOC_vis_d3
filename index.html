@@ -88,10 +88,12 @@
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Show Nodes / Edges / Planes
                             <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#"><input class="cb_network" type="checkbox" onchange="control_network_component(this)" value="nodes"/> Nodes </a></li>
-                            <li><a href="#"><input class="cb_network" type="checkbox" onchange="control_network_component(this)" value="edges"/> Edges </a></li>
-                            <li><a href="#"><input class="cb_network" type="checkbox" onchange="control_network_component(this)" value="communities"/> Planes </a></li>
+                        <ul class="network dropdown-menu">
+                            <li class="dropdown-header">Nodes & Edges</li>
+                            <li><a href="#"><input class="cb_network nodes" type="checkbox" onchange="control_network_component(this)" value="nodes"/> Nodes </a></li>
+                            <li><a href="#"><input class="cb_network edges" type="checkbox" onchange="control_network_component(this)" value="edges"/> Edges </a></li>
+                            <li class="dropdown-header">Communities</li>
+                            <!--<li><a href="#"><input class="cb_network" type="checkbox" onchange="control_network_component(this)" value="communities"/> Planes </a></li>-->
                         </ul>
                     </li>
 

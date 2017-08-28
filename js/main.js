@@ -121,8 +121,8 @@ var tooltip = d3.select("#d3_container").append("div")
  json data import and push to network array
  */
 $(document).ready(function(){
-    initUI();
     initD3();
+    initUI();
 });
 
 
@@ -200,17 +200,17 @@ function initD3(){
                 }
 
             });
+            // community array sort
+            communities.sort(function(a, b) { return a.replace("c", "") - b.replace("c", "") });
 
-            console.log(nodes);
+            // ******************* x, y range and domain setting ****************** //
             var x0 = d3.extent(nodes, function(d){ return d.x;});
             var y0 = d3.extent(nodes, function(d){ return d.y;})
-
-            // 상화좌우로 100씩 확장. 실패.
-            // x.domain([ x0[0]-1000, x0[1]+1000 ]);
-            // y.domain([ y0[0]-1000, y0[1]+1000 ]);
             x.domain(x0);
             y.domain(y0);
-            // y.domain(d3.extent(nodes, function(d){ return d.y;}));
+
+
+            // ******************* link parsing ********************************** //
             links = graph.edges.map(function(d){
                 return {
                     'source': d.source,
@@ -244,6 +244,7 @@ function initD3(){
                 .data(communities)
                 .enter().append("path")
                 .attr("class", "hull")
+                .attr("id", function(d) { return d; })
                 .attr("fill", function(d) { return getColor(d); })
                 .attr("stroke", function(d) { return getColor(d); })
                 .attr('d', function(d){
@@ -362,6 +363,25 @@ function initD3(){
                 // .attr("fill", function(d) { return color(d.data.age); });
 
 */
+            // ********** Append checkboxes list by each community *********** //
+            communities.forEach(function (commu) {
+
+                // set inivisible the each convex at first
+                document.getElementById(commu).style.display = "none";
+
+
+                // init checked false at first
+                $('ul.network.dropdown-menu').append("<li onmouseover=cb_mouseOver(this); onmouseout=cb_mouseOut(this);><a href='#'><input class='cb_network communities' type='checkbox' onchange=control_network_component(this) " +
+                    "value=" + commu + "> " + commu + "</a></li>");
+
+                // init checked true at first
+                // $('ul.network.dropdown-menu').append("<li><a href='#'><input class='cb_network communities' type='checkbox' onchange=control_network_component(this); checked='checked'" +
+                //     "value=" + commu + "> " + commu + "</a></li>");
+
+
+
+            });
+
 
 
 

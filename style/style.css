@@ -133,7 +133,7 @@ path.line {
 path.hull {
     /*fill: lightsteelblue;*/
     fill-opacity: 0.2;
-    stroke-width: 0.01;
+    stroke-width: 1;
 }
 
 
