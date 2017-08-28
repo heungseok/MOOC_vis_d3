@@ -121,8 +121,10 @@ var tooltip = d3.select("#d3_container").append("div")
  json data import and push to network array
  */
 $(document).ready(function(){
+    initUI();
     initD3();
 });
+
 
 
 function initD3(){
@@ -237,11 +239,13 @@ function initD3(){
             // ******************** cluster overlayed convex hull ************** //
             g.append("g")
                 .attr("class", "communities")
+                .attr("id", "communities")
                 .selectAll("path")
                 .data(communities)
                 .enter().append("path")
                 .attr("class", "hull")
                 .attr("fill", function(d) { return getColor(d); })
+                .attr("stroke", function(d) { return getColor(d); })
                 .attr('d', function(d){
                     // d is community
                     // console.log(d);
@@ -265,8 +269,7 @@ function initD3(){
 
             g.append("g")
                 .attr("class", "edges")
-                .attr("stroke", "#000")
-                .attr("stroke-width", 0.5)
+                .attr("id", "edges")
                 .selectAll("line")
                 .data(links)
                 .enter().append("path")
@@ -282,8 +285,7 @@ function initD3(){
             // ******************** draw node ******************** //
             g.append("g")
                 .attr("class", "nodes")
-                .attr("stroke", "#fff")
-                .attr("stroke-width", 0.01)
+                .attr("id", "nodes")
                 .selectAll("circle")
                 .data(nodes)
                 .enter().append("circle")
@@ -293,7 +295,7 @@ function initD3(){
                 .attr("r", function(d) { return 0.001 + (+d.overlap_num*2); })
                 .on("mouseover", function(d) {
                     tooltip.transition()
-                        .duration(100)
+                        .duration(0)
                         .style("opacity", .9)
                         .style("display", "block");
 
@@ -310,7 +312,7 @@ function initD3(){
                 })
                 .on("mouseout", function(d) {
                     tooltip.transition()
-                        .duration(100)
+                        .duration(0)
                         .style("opacity", 0)
                         .style("display", "none");
 

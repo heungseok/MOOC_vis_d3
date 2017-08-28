@@ -12,6 +12,7 @@ app.use('/css', express.static(__dirname + '/css'));
 app.use('/data', express.static(__dirname + '/data'));
 app.use('/img', express.static(__dirname + '/img'));
 app.use('/lib', express.static(__dirname + '/lib'));
+app.use('/semantic', express.static(__dirname + '/semantic'));
 app.use('/style', express.static(__dirname + '/style'));
 
 

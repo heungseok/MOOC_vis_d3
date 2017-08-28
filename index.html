@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="semantic/semantic.min.css">
+    <script
+            src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous"></script>
+    <script src="semantic/semantic.min.js"></script>
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -31,6 +39,30 @@
     <!-- LOAD UNDERSCORE LIb -->
     <script src="./js/underscore.js"></script>
     <script src="./js/underscore.math.js"></script>
+<!--
+    <div class="ui huge menu">
+        <a class="active item">
+            Home
+        </a>
+        <a class="item">
+            Messages
+        </a>
+        <div class="right menu">
+            <div class="ui dropdown item">
+                Language <i class="dropdown icon"></i>
+                <div class="menu">
+                    <a class="item">English</a>
+                    <a class="item">Russian</a>
+                    <a class="item">Spanish</a>
+                </div>
+            </div>
+            <div class="item">
+                <div class="ui primary button">Sign Up</div>
+            </div>
+        </div>
+    </div>
+
+-->
 
 
     <nav class="navbar navbar-inverse navbar-fixed-top" style="position: absolute; left:0; top:0">
@@ -41,6 +73,32 @@
 
 
             <div id="navbar" class="navbar-collapse collapse">
+
+                <ul class="nav navbar-nav navbar-left">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Page 1
+                            <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Page 1-1</a></li>
+                            <li><a href="#">Page 1-2</a></li>
+                            <li><a href="#">Page 1-3</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Show Nodes / Edges / Planes
+                            <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#"><input class="cb_network" type="checkbox" onchange="control_network_component(this)" value="nodes"/> Nodes </a></li>
+                            <li><a href="#"><input class="cb_network" type="checkbox" onchange="control_network_component(this)" value="edges"/> Edges </a></li>
+                            <li><a href="#"><input class="cb_network" type="checkbox" onchange="control_network_component(this)" value="communities"/> Planes </a></li>
+                        </ul>
+                    </li>
+
+
+                    <li><a href="#">Page 2</a></li>
+                    <li><a href="#">Page 3</a></li>
+                </ul>
 
 
                 <ul class="nav navbar-nav navbar-right">
@@ -53,6 +111,8 @@
     </nav>
 
     <div id="container">
+
+        <!--
         <div id="basic-info-pane">
             <h2 class="underline">Color Info</h2>
             <div class="colorCode-info">
@@ -70,6 +130,8 @@
             </div>
 
         </div>
+        -->
+
         <div id="d3_container">
 
         </div>
@@ -114,47 +176,7 @@
     </div>
 
 
-    <script>
-
-        // get the modal
-        var modal = document.getElementById("aboutModal");
-
-        // get the button that opens the modal
-        var btn = document.getElementById("about");
-
-        // get the <span> element that cloases the modal;
-        var span = document.getElementsByClassName("close")[0];
-
-        // When the user clicks the button, open the modal
-        btn.onclick = function () {
-            modal.style.display = "block";
-        }
-
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function () {
-            modal.style.display = "none";
-        }
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function (event) {
-            if(event.target == modal){
-                modal.style.display = "none";
-            }
-        }
-
-
-        function closeNavLeft() {
-            document.getElementById("sideNavLeft").style.width = "0";
-
-        }
-
-        function closeNavRight() {
-            document.getElementById("sideNavRight").style.width = "0";
-
-        }
-
-
-    </script>
+    <script src="./js/ui_control.js"></script>
 
 
 </body>
