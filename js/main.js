@@ -1,3 +1,6 @@
+var root_fileName = "C19_color_encoded_";
+var network_fileName = "C19_color_encoded_YifanHu.json";
+
 
 var width = document.getElementById("d3_container").offsetWidth,
     height = document.getElementById("d3_container").offsetHeight;
@@ -20,6 +23,27 @@ var line = d3.line()
     // .y(function(d){ return y(d)});
 
 
+// *********** Network Variable: Layout, Community, Nodes, Edges ********** //
+var layout = "YifanHu";
+var communities = [];
+
+var course_info;
+var nodes,
+    links;
+
+var current_time = 3;
+var current_platform = "classCentral";
+
+var color_by_communities = [];
+var getColor = function(d){
+    for(var i=0; i<color_by_communities.length; i++){
+        if(color_by_communities[i].comm_id === d){
+            return color_by_communities[i].color;
+        }
+    }
+};
+
+
 // *********** pie element for overlapping node ********** //
 var pie = d3.pie()
     .sort(null)
@@ -30,22 +54,6 @@ var path = d3.arc()
     .innerRadius(0);
 
 
-var course_info;
-var nodes,
-    links;
-
-var current_time = 3;
-var current_platform = "classCentral";
-
-
-var color_by_communities = [];
-var getColor = function(d){
-    for(var i=0; i<color_by_communities.length; i++){
-        if(color_by_communities[i].comm_id === d){
-            return color_by_communities[i].color;
-        }
-    }
-}
 
 /************** convex hull variable, function **********************/
 var hullPadding = 10;
@@ -130,16 +138,17 @@ $(document).ready(function(){
 function initD3(){
 
     // d3.json("./data/modularity_k4_CPM_perf_log_t3_cc.json", function(error, graph){
-    d3.json("./data/C19_color_encoded(good3).json", function(error, graph){
+    // d3.json("./data/C19_color_encoded_ForceAtlas.json", function(error, graph){
+    d3.json("./data/"+ root_fileName + layout + ".json", function(error, graph){
 
         d3.csv("./data/MOOC_parcoord_data_only_net_available.csv", function(courses){
-            console.log(courses);
-            console.log(graph);
+            // ****** set global layout variable and dropdown element active ***** //
+            $("li."+layout).addClass("active");
+
             // ************* 1. Course data parsing by global time variable ************ //
             course_info = _.where(courses, {time: String(current_time), review_platform: current_platform });
 
-            var communities = [];
-            
+
             nodes = graph.nodes.map(function(d){
 
                 if(Number(d.attributes.overlap_num) > 1){
@@ -396,6 +405,97 @@ function initD3(){
     });
 
 }
+
+function changeLayout(target_layout){
+    // 먼저 target_layout과 현재 layout 비교
+    if(target_layout === layout)
+        return;
+    else{
+        $("li."+layout).removeClass("active");
+        layout = target_layout;
+    }
+
+    // ****** set global layout variable and dropdown element active ***** //
+    $("li."+layout).addClass("active");
+
+    // ****** hull and edges invisible temporarily ******* //
+    document.getElementById("edges").style.display = "none";
+    document.getElementById("communities").style.display = "none";
+
+    // ****** target network file read ***** //
+
+    d3.json("./data/"+ root_fileName + layout + ".json", function(error, graph){
+
+        // *** change the each node's x, y coordinates *** //
+        nodes.forEach(function(node, index){
+            var corresponded_node = _.findWhere(graph.nodes, {id: node.index});
+            if (corresponded_node === undefined)
+                return;
+            else{
+                nodes[index].x = corresponded_node.x;
+                nodes[index].y = corresponded_node.y;
+            }
+        });
+
+        // **************** d3 element update ************* //
+
+        // **************** Node update ****************** //
+        var t = d3.transition()
+            .duration(1500);
+
+        var nodes_selector = g.select("#nodes")
+            .selectAll("circle")
+            .data(nodes);
+
+        nodes_selector
+            .transition(t)
+            .attr("cx", function(d) { return x(d.x); })
+            .attr("cy", function(d) { return y(d.y); });
+
+    });
+
+}
+
+function changeOthers(){
+
+    // **************** Hull update ****************** //
+    var comm_selector = g.select("#communities")
+        .selectAll("path")
+
+    comm_selector
+        .attr('d', function(d){
+            var points = [];
+            nodes.forEach(function (node) {
+                if(Number(node.overlap_num) > 1){
+                    if(_.contains(node.community.split("+"), d))
+                        points.push([x(node.x), y(node.y), node.index])
+                }else{
+                    if(d == node.community)
+                        points.push([x(node.x), y(node.y), node.index])
+                }
+            });
+            var convexHull = d3.polygonHull(points);
+            return smoothHull(convexHull);
+
+        });
+
+    // **************** Edge update ****************** //
+    var edges_selector = g.select("#edges")
+        .selectAll("path");
+
+    edges_selector
+        .attr("d", function(d) { return line( [
+            [x(findNodePositionX(d.source)), y(findNodePositionY(d.source))],
+            [x(findNodePositionX(d.target)), y(findNodePositionY(d.target))]
+        ])});
+
+
+    // ****** hull and edges invisible temporarily ******* //
+    document.getElementById("edges").style.display = null;
+    document.getElementById("communities").style.display = null;
+
+}
+
 function zoomed(){
     g.select("g.nodes").attr("transform", d3.event.transform);
     g.select("g.edges").attr("transform", d3.event.transform);
@@ -419,7 +519,8 @@ function findNodePositionY(id){
 
 function initD3_withForce(){
     // d3.json("./data/modularity_k4_CPM_perf_log_t3_cc.json", function(error, graph){
-    d3.json("./data/C19_color_encoded(good3).json", function(error, graph){
+    d3.json("./data/C19_color_encoded_Force_Atlas.json", function(error, graph){
+
     // d3.json("./data/t1_classCentral_network.json", function(error, graph){
         console.log(graph);
 
@@ -610,3 +711,4 @@ function switchPlatform(btn_platform) {
     }
     // 같을 경우 do nothing;
 }
+

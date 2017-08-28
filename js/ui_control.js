@@ -13,8 +13,19 @@ function initUI(){
 
 // ************** Control d3 ***************** //
 function control_network_component(item) {
-    console.log(item.value);
-    console.log(item.checked);
+/*
+    var id = item.innerText.replace(" ","").toLowerCase();
+    console.log(id);
+    var cb_element = $('input.cb_network[type=checkbox][value='+ id +']');
+    if(cb_element.prop('checked')){
+        // console.log("in checked");
+        cb_element.prop('checked', false);
+        $("#"+id).css("display", "none");
+    }else{
+        cb_element.prop('checked', true);
+        $("#"+id).css("display", "");
+    }*/
+
     if (item.checked){
         document.getElementById(item.value).style.display = null;
     }else{
@@ -35,6 +46,13 @@ function cb_mouseOut(item) {
 
 }
 
+function control_layout(item){
+    var target_layout = item.innerText.replace(" ","");
+
+    changeLayout(target_layout);
+    setTimeout(function(){ changeOthers(); }, 2000);
+
+}
 
 
 
