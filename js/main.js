@@ -24,6 +24,11 @@ var line = d3.line()
 // *********** Network Variable: Layout, Community, Nodes, Edges ********** //
 // var layout = "YifanHu";
 var layout = "ForceAtlas";
+var node_size = "overlap_num";
+// var node_size = "performance";
+var node_color = "community";
+
+
 var communities = [];
 
 var course_info;
@@ -50,7 +55,15 @@ var pie = d3.pie()
 
 
 var pie_arc = d3.arc()
-    .outerRadius(function(d) { return 0.001 + (d.data.overlap_num*2); })
+    .outerRadius(function(d) {
+
+        if(node_size=="overlap_num")
+            return 0.001 + (+d.data.overlap_num*2);
+        else if(node_size=="performance")
+            return 0.001 + (+d.data.performance);
+        else if(node_size=="betweenness")
+            return 0.001 + (+d.data.betweenness*500);
+    })
     .innerRadius(0);
 
 
@@ -146,9 +159,19 @@ function initD3(){
         d3.csv("./data/MOOC_parcoord_data_only_net_available.csv", function(courses){
             // ****** set global layout variable and dropdown element active ***** //
             $("li."+layout).addClass("active");
+            $("li."+node_size).addClass("active");
+            $("li."+node_color).addClass("active");
+
 
             // ************* 1. Course data parsing by global time variable ************ //
             course_info = _.where(courses, {time: String(current_time), review_platform: current_platform });
+            console.log(course_info);
+            console.log(graph);
+            // var perform_extent = d3.extent(course_info, function(d){ return +d["performance (t+1)"]});
+            // var bet_extent = d3.extent(course_info, function(d){ return +d["betweenness"]});
+
+
+
 
 
             nodes = graph.nodes.map(function(d){
@@ -182,10 +205,11 @@ function initD3(){
                         'y' : d.y,
                         'color': d.color,
 
-                        // 나중에 community data 도 필요함: community id, # of overlapping community,
                         // 그리고 rank, centrality 등 모두 통일된 range로 스케일 조정 필수.
-                        'community': d.attributes.community,
-                        'overlap_num': d.attributes.overlap_num,
+                        'community': d.attributes.community ,
+                        'overlap_num': +d.attributes.overlap_num,
+                        'performance': +d.attributes["perf_lead.log"],
+                        'betweenness': +d.attributes["bet"],
 
                         // course info
                         'area': res_findWhere.area,
@@ -202,6 +226,9 @@ function initD3(){
 
                         'community': d.attributes.community,
                         'overlap_num': d.attributes.overlap_num,
+                        'performance': +d.attributes["perf_lead.log"],
+                        'betweenness': +d.attributes["bet"],
+
 
                         // course info
                         'area' : d.attributes.area,
@@ -211,6 +238,7 @@ function initD3(){
                 }
 
             });
+            console.log(nodes);
             // community array sort
             communities.sort(function(a, b) { return a.replace("c", "") - b.replace("c", "") });
 
@@ -307,7 +335,10 @@ function initD3(){
                     'y' : filtered_d.y,
                     'overlapping_num': +filtered_d.overlap_num,
                     'overlapping_communities': filtered_d.community.split("+").map(
-                        function(d){ return { "id": d, "value": 0, "overlap_num": +filtered_d.overlap_num }; })
+                        function(d){ return { "id": d, "value": 0,
+                            "overlap_num": +filtered_d.overlap_num,
+                            'betweenness': +filtered_d.betweenness,
+                            'performance': +filtered_d.performance}; })
                 }
             });
             overlapping_nodes.forEach(function(node, index){
@@ -372,7 +403,15 @@ function initD3(){
                 })
                 .attr("cx", function(d) { return x(d.x); })
                 .attr("cy", function(d) { return y(d.y); })
-                .attr("r", function(d) { return 0.001 + (+d.overlap_num*2); })
+                .attr("r", function(d) {
+                    if(node_size=="overlap_num")
+                        return 0.001 + (+d.overlap_num*2);
+                    else if(node_size=="performance")
+                        return 0.001 + (+d.performance);
+                    else if(node_size=="betweenness")
+                        return 0.001 + (+d.betweenness*500);
+
+                })
                 .on("mouseover", function(d) {
                     tooltip.transition()
                         .duration(0)
@@ -384,7 +423,10 @@ function initD3(){
                         "# Overlap: " + parseInt(d.overlap_num) + "</br>" +
                         "Area: " + d.area + "</br>" +
                         "Subject: " + d.subject + "</br>" +
-                        "School: " + d.school + "</br>"
+                        "School: " + d.school + "</br>" +
+                        "Performance (t+1): " + d.performance + "</br>"
+                        // "Betweenness: " + d.betweenness + "</br>"
+
 
                     )
                         .style("left", (d3.event.pageX + 5) + "px")
@@ -488,6 +530,8 @@ function changeLayout(target_layout){
             .attr("cy", function(d) { return y(d.y); });
 
 
+
+
         // **************** Pie update ****************** //
         var pie_selector = g.select("#overlapping_nodes")
             .selectAll("g.pie_container")
@@ -498,6 +542,7 @@ function changeLayout(target_layout){
             .attr("transform", function (d) {
                 return "translate (" + x(d.x) + "," + y(d.y) + ")";
             });
+
 
 
     });
@@ -543,6 +588,48 @@ function changeOthers(){
     document.getElementById("communities").style.display = null;
 
 }
+
+function changeNodeSize(target_size){
+    if(target_size === node_size)
+        return;
+    else{
+        $("li."+node_size).removeClass("active");
+        node_size = target_size;
+    }
+
+    // ****** set global layout variable and dropdown element active ***** //
+    $("li."+node_size).addClass("active");
+
+
+    var t = d3.transition()
+        .duration(1700);
+
+    // ****** change the node color by target size ****** //
+    var nodes_selector = g.select("#nodes")
+        .selectAll("circle");
+
+    nodes_selector
+        .transition(t)
+        .attr("r", function(d) {
+            if(node_size=="overlap_num")
+                return 0.001 + (+d.overlap_num*2);
+            else if(node_size=="performance")
+                return 0.001 + (+d.performance);
+            else if(node_size=="betweenness")
+                return 0.001 + (+d.betweenness*500);
+        });
+    // **************** Pie update ****************** //
+    var pie_selector = g.select("#overlapping_nodes")
+        .selectAll("g.pie_container").selectAll("path")
+    pie_selector
+        .transition(t)
+        .attr("d", pie_arc);
+}
+
+function changeNodeColor(target_color){
+
+}
+
 
 function zoomed(){
     g.select("g.nodes").attr("transform", d3.event.transform);

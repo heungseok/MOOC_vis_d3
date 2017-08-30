@@ -48,7 +48,7 @@
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Layout
                             <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
+                        <ul class="layout dropdown-menu">
                             <li class="ForceAtlas" onclick="control_layout(this)"><a href="#">Force Atlas</a></li>
                             <li class="YifanHu" onclick="control_layout(this)"><a href="#">Yifan Hu</a></li>
 
@@ -67,7 +67,24 @@
                     </li>
 
 
-                    <li><a href="#">Page 2</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Node Attributes
+                            <span class="caret"></span></a>
+                        <ul class="nodeAttr dropdown-menu">
+                            <li class="dropdown-header">Size by</li>
+                            <li class="overlap_num" onclick="control_nodeSize(this)"><a href="#">Overlap Num</a></li>
+                            <li class="performance" onclick="control_nodeSize(this)"><a href="#">Performance (T+1)</a></li>
+                            <li class="betweenness" onclick="control_nodeSize(this)"><a href="#">Betweenness</a></li>
+
+                            <li class="dropdown-header">Color by</li>
+                            <li class="community" onclick="control_nodeColor(this)"><a href="#">Community</a></li>
+                            <li class="area" onclick="control_nodeColor(this)"><a href="#">Academic Area</a></li>
+
+
+                        </ul>
+                    </li>
+
+
                     <li><a href="#">Page 3</a></li>
                 </ul>
 

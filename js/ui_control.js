@@ -47,7 +47,8 @@ function cb_mouseOut(item) {
 }
 
 function control_layout(item){
-    var target_layout = item.innerText.replace(" ","");
+    // var target_layout = item.innerText.replace(" ","");
+    var target_layout = item.className;
 
     changeLayout(target_layout);
     setTimeout(function(){ changeOthers(); }, 2000);
@@ -55,7 +56,16 @@ function control_layout(item){
 }
 
 
+function control_nodeSize(item){
+    var target_size = item.className;
+    changeNodeSize(target_size);
 
+}
+function control_nodeColor(item){
+    var target_color = item.className;
+    changeNodeColor(target_color);
+
+}
 
 
 
