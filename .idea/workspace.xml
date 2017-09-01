@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c970ae5d-492e-427a-85bc-be7af10c9cdf" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.html" afterPath="$PROJECT_DIR$/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/main.js" afterPath="$PROJECT_DIR$/js/main.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/style/style.css" afterPath="$PROJECT_DIR$/style/style.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data/T3_node_info.csv" afterPath="$PROJECT_DIR$/data/T3_node_info.csv" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -18,38 +17,6 @@
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
-  </component>
-  <component name="DockManager">
-    <window id="3">
-      <content type="file-editors">
-        <state>
-          <leaf>
-            <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
-              <entry file="file://$PROJECT_DIR$/index.html">
-                <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="404">
-                    <caret line="133" column="20" lean-forward="true" selection-start-line="133" selection-start-column="20" selection-end-line="133" selection-end-column="20" />
-                    <folding>
-                      <element signature="n#style#0;n#nav#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-                      <marker date="1504273169131" expanded="true" signature="5043:5056" ph="..." />
-                      <marker date="1504273169131" expanded="true" signature="5136:5149" ph="..." />
-                      <marker date="1504273169131" expanded="true" signature="5230:5243" ph="..." />
-                      <marker date="1504273169131" expanded="true" signature="5321:5334" ph="..." />
-                      <marker date="1504273169131" expanded="true" signature="5410:5423" ph="..." />
-                      <marker date="1504273169131" expanded="true" signature="5492:5505" ph="..." />
-                      <marker date="1504273169131" expanded="false" signature="5582:5595" ph="..." />
-                      <marker date="1504273169131" expanded="false" signature="5668:5681" ph="..." />
-                      <marker date="1504273169131" expanded="false" signature="5755:5768" ph="..." />
-                      <marker date="1504273169131" expanded="false" signature="5861:5874" ph="..." />
-                    </folding>
-                  </state>
-                </provider>
-              </entry>
-            </file>
-          </leaf>
-        </state>
-      </content>
-    </window>
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
@@ -350,12 +317,12 @@
       <option name="presentableId" value="Default" />
       <updated>1503473732293</updated>
       <workItem from="1503473733553" duration="335000" />
-      <workItem from="1503886743064" duration="43009000" />
+      <workItem from="1503886743064" duration="43609000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="43344000" />
+    <option name="totallyTimeSpent" value="43944000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="2576" height="1416" extended-state="6" />
