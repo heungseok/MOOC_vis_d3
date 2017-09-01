@@ -109,7 +109,7 @@ input[type=range] {
 /*  tooltip */
 .tooltip{
     color: black;
-    width: 200px;
+    width: 20vw;
     border: 1px solid lightgrey;
     box-sizing: border-box;
     background-color: white;
@@ -135,9 +135,6 @@ path.hull {
     fill-opacity: 0.2;
     stroke-width: 1;
 }
-
-
-
 
 
 

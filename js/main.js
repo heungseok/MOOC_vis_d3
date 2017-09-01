@@ -9,9 +9,6 @@ var svg = d3.select("#d3_container").append("svg"),
     g = svg.append("g"),
     transform = d3.zoomIdentity;
 
-
-var color = d3.scaleOrdinal(d3.schemeCategory20);
-
 var x = d3.scaleLinear().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
 
@@ -24,9 +21,9 @@ var line = d3.line()
 // *********** Network Variable: Layout, Community, Nodes, Edges ********** //
 // var layout = "YifanHu";
 var layout = "ForceAtlas";
-var node_size = "overlap_num";
-// var node_size = "performance";
-var node_color = "community";
+var size_mode = "overlap_num";
+// var size_mode = "performance";
+var color_mode = "community";
 
 
 var communities = [];
@@ -38,7 +35,7 @@ var current_time = 3;
 var current_platform = "classCentral";
 
 var color_by_communities = [];
-var getColor = function(d){
+var getCommunityColor = function(d){
     for(var i=0; i<color_by_communities.length; i++){
         if(color_by_communities[i].comm_id === d){
             return color_by_communities[i].color;
@@ -46,27 +43,29 @@ var getColor = function(d){
     }
 };
 
+// color palette
+var area_color = d3.scaleOrdinal(d3.schemeCategory10);
+var betRank_color = d3.scaleThreshold().range(d3.schemeRdPu[9]);
+var transRank_color = d3.scaleThreshold().range(d3.schemeYlOrRd[9]);
+var mixRank_color = d3.scaleThreshold(500).range(d3.schemeRdYlBu[11]);
 
 // *********** pie element for overlapping node ********** //
 var pie = d3.pie()
     .sort(null)
-    // .value(function(d) { return d.overlapping_communities_value; });
     .value(function(d) { return d.value; });
 
 
 var pie_arc = d3.arc()
     .outerRadius(function(d) {
 
-        if(node_size=="overlap_num")
+        if(size_mode=="overlap_num")
             return 0.001 + (+d.data.overlap_num*2);
-        else if(node_size=="performance")
+        else if(size_mode=="performance")
             return 0.001 + (+d.data.performance);
-        else if(node_size=="betweenness")
+        else if(size_mode=="betweenness")
             return 0.001 + (+d.data.betweenness*500);
     })
     .innerRadius(0);
-
-
 
 // ************** convex hull variable, function ********************** //
 var hullPadding = 10;
@@ -156,22 +155,33 @@ function initD3(){
     // d3.json("./data/C19_color_encoded_ForceAtlas.json", function(error, graph){
     d3.json("./data/"+ root_fileName + layout + ".json", function(error, graph){
 
-        d3.csv("./data/MOOC_parcoord_data_only_net_available.csv", function(courses){
+        // d3.csv("./data/MOOC_parcoord_data_only_net_available.csv", function(courses){
+        d3.csv("./data/T3_node_info.csv", function(courses){
             // ****** set global layout variable and dropdown element active ***** //
             $("li."+layout).addClass("active");
-            $("li."+node_size).addClass("active");
-            $("li."+node_color).addClass("active");
+            $("li."+size_mode).addClass("active");
+            $("li."+color_mode).addClass("active");
 
 
             // ************* 1. Course data parsing by global time variable ************ //
-            course_info = _.where(courses, {time: String(current_time), review_platform: current_platform });
+            // course_info = _.where(courses, {time: String(current_time), review_platform: current_platform });
+            course_info = courses;
+
+            // ******************* color palette domain setting ****************** //
+            // each color palette setting by between rank, transitivity rank, mix rank, area
+            // 이와 같이 color range를 설정할 경우 isolate까지 포함하게됨.
+            var area_list = _.uniq(_.pluck(course_info, "area"));
+            var betRank_list = (_.pluck(course_info, "bet_rank"));
+            var transRank_list = (_.pluck(course_info, "trans_rank"));
+            var mixRank_list = (_.pluck(course_info, "mix_rank"));
+
+            area_color.domain(area_list);
+            betRank_color.domain(betRank_list);
+            transRank_color.domain(transRank_list);
+            mixRank_color.domain(mixRank_list);
+
             console.log(course_info);
             console.log(graph);
-            // var perform_extent = d3.extent(course_info, function(d){ return +d["performance (t+1)"]});
-            // var bet_extent = d3.extent(course_info, function(d){ return +d["betweenness"]});
-
-
-
 
 
             nodes = graph.nodes.map(function(d){
@@ -209,14 +219,22 @@ function initD3(){
                         'community': d.attributes.community ,
                         'overlap_num': +d.attributes.overlap_num,
                         'performance': +d.attributes["perf_lead.log"],
-                        'betweenness': +d.attributes["bet"],
+                        // 'betweenness': +d.attributes["bet"],
 
                         // course info
+                        'title': res_findWhere.title,
                         'area': res_findWhere.area,
                         'subject': res_findWhere.subject,
-                        'school': res_findWhere.school
+                        'school': res_findWhere.school,
+
+                        'between': +res_findWhere.between,
+                        'trans': +res_findWhere.trans,
+                        'bet_rank': +res_findWhere.bet_rank,
+                        'trans_rank': +res_findWhere.trans_rank,
+                        'mix_rank': +res_findWhere.mix_rank
                     }
                 }else{
+
                     return {
                         // node info
                         'index' : d.id,
@@ -227,13 +245,19 @@ function initD3(){
                         'community': d.attributes.community,
                         'overlap_num': d.attributes.overlap_num,
                         'performance': +d.attributes["perf_lead.log"],
-                        'betweenness': +d.attributes["bet"],
-
+                        // 'betweenness': +d.attributes["bet"],
 
                         // course info
+                        'title': "unknown",
                         'area' : d.attributes.area,
                         'subject': d.attributes.subject,
-                        'school': "unknown"
+                        'school': "unknown",
+
+                        'between': 0,
+                        'trans': 0,
+                        'bet_rank': 0,
+                        'trans_rank': 0,
+                        'mix_rank': 0
                     }
                 }
 
@@ -251,29 +275,22 @@ function initD3(){
 
             // ******************* link parsing ********************************** //
             links = graph.edges.map(function(d){
+                // set edge color by betweenness, transitivity, mix rank, area
+                // find node by source
+                temp_node = findNodeById(d.source)[0];
+
                 return {
                     'source': d.source,
                     'target': d.target,
+                    'size': d.size,
                     'color': d.color,
-                    'size': d.size
+                    'bet_color': betRank_color(temp_node.bet_rank),
+                    'trans_color': transRank_color(temp_node.trans_rank),
+                    'area_color': area_color(temp_node.area),
+                    'mix_color': mixRank_color(temp_node.mix_rank)
+
                 }
             });
-
-            /*
-             // draw each edge using line
-             g.append("g")
-             .attr("class", "edges")
-             .attr("stroke", "#000")
-             .attr("stroke-width", 0.5)
-             .selectAll("line")
-             .data(links)
-             .enter().append("line")
-             .attr("stroke", function(d) { return d.color; })
-             .attr("x1", function(d) { return x(findNodePositionX(d.source)); })
-             .attr("y1", function(d) { return y(findNodePositionY(d.source)); })
-             .attr("x2", function(d) { return x(findNodePositionX(d.target)); })
-             .attr("y2", function(d) { return y(findNodePositionY(d.target)); });
-             */
 
             // ******************** cluster overlayed convex hull ************** //
             g.append("g")
@@ -284,8 +301,8 @@ function initD3(){
                 .enter().append("path")
                 .attr("class", "hull")
                 .attr("id", function(d) { return d; })
-                .attr("fill", function(d) { return getColor(d); })
-                .attr("stroke", function(d) { return getColor(d); })
+                .attr("fill", function(d) { return getCommunityColor(d); })
+                .attr("stroke", function(d) { return getCommunityColor(d); })
                 .attr('d', function(d){
                     // d is community
                     // console.log(d);
@@ -306,7 +323,6 @@ function initD3(){
                 });
 
             // ******************** draw each edge using path ******************** //
-
             g.append("g")
                 .attr("class", "edges")
                 .attr("id", "edges")
@@ -315,12 +331,27 @@ function initD3(){
                 .enter().append("path")
                 .attr("class", "line")
                 .attr("stroke-width", function(d) { return Math.sqrt(d.size); })
-                .attr("stroke", function(d) { return d.color; })
+                .attr("stroke", getEdgeColor)
                 .attr("d", function(d) { return line( [
                     [x(findNodePositionX(d.source)), y(findNodePositionY(d.source))],
                     [x(findNodePositionX(d.target)), y(findNodePositionY(d.target))]
                 ])});
 
+            /*
+             // draw each edge using line
+             g.append("g")
+             .attr("class", "edges")
+             .attr("stroke", "#000")
+             .attr("stroke-width", 0.5)
+             .selectAll("line")
+             .data(links)
+             .enter().append("line")
+             .attr("stroke", function(d) { return d.color; })
+             .attr("x1", function(d) { return x(findNodePositionX(d.source)); })
+             .attr("y1", function(d) { return y(findNodePositionY(d.source)); })
+             .attr("x2", function(d) { return x(findNodePositionX(d.target)); })
+             .attr("y2", function(d) { return y(findNodePositionY(d.target)); });
+             */
 
 
             // ***************  draw overlay pie chart on the node circle **************** //
@@ -384,10 +415,7 @@ function initD3(){
                 .attr("d", pie_arc)
                 .attr("stroke-width", 0)
                 .attr("stroke", "#FFF")
-                .attr("fill", function(d) { return getColor(d.data.id)});
-
-
-
+                .attr("fill", function(d) { return getCommunityColor(d.data.id)});
 
             // ******************** draw node ******************** //
             g.append("g")
@@ -396,61 +424,20 @@ function initD3(){
                 .selectAll("circle")
                 .data(nodes)
                 .enter().append("circle")
-                .attr("fill", function(d) { return d.color; })
-                .attr("fill-opacity", function(d){
-                    if (+d.overlap_num > 1) return 0;
-                    else 1;
-                })
+                .attr("fill", getNodeColor)
+                .attr("fill-opacity", getNodeOpacity)
                 .attr("cx", function(d) { return x(d.x); })
                 .attr("cy", function(d) { return y(d.y); })
-                .attr("r", function(d) {
-                    if(node_size=="overlap_num")
-                        return 0.001 + (+d.overlap_num*2);
-                    else if(node_size=="performance")
-                        return 0.001 + (+d.performance);
-                    else if(node_size=="betweenness")
-                        return 0.001 + (+d.betweenness*500);
-
-                })
-                .on("mouseover", function(d) {
-                    tooltip.transition()
-                        .duration(0)
-                        .style("opacity", .9)
-                        .style("display", "block");
-
-                    tooltip.html(
-                        "Community: " + d.community + "</br>" +
-                        "# Overlap: " + parseInt(d.overlap_num) + "</br>" +
-                        "Area: " + d.area + "</br>" +
-                        "Subject: " + d.subject + "</br>" +
-                        "School: " + d.school + "</br>" +
-                        "Performance (t+1): " + d.performance + "</br>"
-                        // "Betweenness: " + d.betweenness + "</br>"
-
-
-                    )
-                        .style("left", (d3.event.pageX + 5) + "px")
-                        .style("top", (d3.event.pageY - 28) + "px");
-                })
-                .on("mouseout", function(d) {
-                    tooltip.transition()
-                        .duration(0)
-                        .style("opacity", 0)
-                        .style("display", "none");
-
-                })
+                .attr("r", getNodeSize)
+                .on("mouseover", mouseMoveOnNode)
+                .on("mouseout", mouseOutOnNode)
                 .call(d3.drag()
                     .on("drag", dragged));
 
-
-
-
             // ********** Append checkboxes list by each community *********** //
             communities.forEach(function (commu) {
-
                 // set inivisible the each convex at first
                 document.getElementById(commu).style.display = "none";
-
 
                 // init checked false at first
                 $('ul.network.dropdown-menu').append("<li onmouseover=cb_mouseOver(this); onmouseout=cb_mouseOut(this);><a href='#'><input class='cb_network communities' type='checkbox' onchange=control_network_component(this) " +
@@ -490,7 +477,6 @@ function changeLayout(target_layout){
     document.getElementById("communities").style.display = "none";
 
     // ****** target network file read ***** //
-
     d3.json("./data/"+ root_fileName + layout + ".json", function(error, graph){
 
         // *** change the each node's x, y coordinates *** //
@@ -514,7 +500,6 @@ function changeLayout(target_layout){
             }
         });
 
-
         // **************** d3 element update ************* //
         // **************** Node update ****************** //
         var t = d3.transition()
@@ -529,21 +514,16 @@ function changeLayout(target_layout){
             .attr("cx", function(d) { return x(d.x); })
             .attr("cy", function(d) { return y(d.y); });
 
-
-
-
         // **************** Pie update ****************** //
         var pie_selector = g.select("#overlapping_nodes")
             .selectAll("g.pie_container")
-            .data(overlapping_nodes)
+            .data(overlapping_nodes);
 
         pie_selector
             .transition(t)
             .attr("transform", function (d) {
                 return "translate (" + x(d.x) + "," + y(d.y) + ")";
             });
-
-
 
     });
 
@@ -553,7 +533,7 @@ function changeOthers(){
 
     // **************** Hull update ****************** //
     var comm_selector = g.select("#communities")
-        .selectAll("path")
+        .selectAll("path");
 
     comm_selector
         .attr('d', function(d){
@@ -590,16 +570,14 @@ function changeOthers(){
 }
 
 function changeNodeSize(target_size){
-    if(target_size === node_size)
+    if(target_size === size_mode)
         return;
     else{
-        $("li."+node_size).removeClass("active");
-        node_size = target_size;
+        $("li."+size_mode).removeClass("active");
+        size_mode = target_size;
     }
-
     // ****** set global layout variable and dropdown element active ***** //
-    $("li."+node_size).addClass("active");
-
+    $("li."+size_mode).addClass("active");
 
     var t = d3.transition()
         .duration(1700);
@@ -607,17 +585,9 @@ function changeNodeSize(target_size){
     // ****** change the node color by target size ****** //
     var nodes_selector = g.select("#nodes")
         .selectAll("circle");
-
     nodes_selector
         .transition(t)
-        .attr("r", function(d) {
-            if(node_size=="overlap_num")
-                return 0.001 + (+d.overlap_num*2);
-            else if(node_size=="performance")
-                return 0.001 + (+d.performance);
-            else if(node_size=="betweenness")
-                return 0.001 + (+d.betweenness*500);
-        });
+        .attr("r", getNodeSize);
     // **************** Pie update ****************** //
     var pie_selector = g.select("#overlapping_nodes")
         .selectAll("g.pie_container").selectAll("path")
@@ -627,9 +597,34 @@ function changeNodeSize(target_size){
 }
 
 function changeNodeColor(target_color){
+    if(target_color === color_mode)
+        return;
+    else{
+        $("li."+color_mode).removeClass("active");
+        color_mode = target_color;
+    }
+    // ****** set global layout variable and dropdown element active ***** //
+    $("li."+color_mode).addClass("active");
+
+    var t = d3.transition()
+        .duration(1000);
+
+    // ****** change the node color by target color ****** //
+    var nodes_selector = g.select("#nodes")
+        .selectAll("circle");
+    nodes_selector
+        .transition(t)
+        .attr("fill", getNodeColor)
+        .attr("fill-opacity", getNodeOpacity);
+
+    // ****** change the edge color by target color ****** //
+    var edges_selector = g.select("#edges")
+        .selectAll("path");
+    edges_selector
+        .transition(t)
+        .attr("stroke", getEdgeColor);
 
 }
-
 
 function zoomed(){
     g.select("g.nodes").attr("transform", d3.event.transform);
@@ -642,7 +637,38 @@ function zoomed(){
 function dragged(d){
     d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
 }
+// #################### Network utility ########################## //
+function mouseMoveOnNode(d){
 
+    tooltip
+        .transition()
+        .duration(0)
+        .style("opacity", .9)
+        .style("display", "block");
+
+    tooltip
+        .html(
+            "Title: " + d.title+ "</br>" +
+            "Area : " + d.area + "</br>" +
+            "Subject: " + d.subject + "</br>" +
+            "School: " + d.school + "</br></br>" +
+            "Community: " + d.community + "</br>" +
+            "Community Overlap: " + parseInt(d.overlap_num) + "</br>" +
+            "Performance (t+1): " + d.performance + "</br>" +
+            "Between Low Rank: " + d.bet_rank +" /" + course_info.length + "</br>" +
+            "C.C. Low Rank: " + d.trans_rank +" /" + course_info.length + "</br>" +
+            "Mixed Rank: " + d.mix_rank/2 +" /" + course_info.length + "</br>"
+        )
+        .style("left", (d3.event.pageX + 5) + "px")
+        .style("top", (d3.event.pageY - 28) + "px");
+}
+
+function mouseOutOnNode(d){
+    tooltip.transition()
+        .duration(0)
+        .style("opacity", 0)
+        .style("display", "none");
+}
 
 function findNodePositionX(id){
     var temp_x = _.where(nodes, {index: id});
@@ -653,199 +679,52 @@ function findNodePositionY(id){
     return temp_y[0].y;
 }
 
-
-function initD3_withForce(){
-    // d3.json("./data/modularity_k4_CPM_perf_log_t3_cc.json", function(error, graph){
-    d3.json("./data/C19_color_encoded_Force_Atlas.json", function(error, graph){
-
-    // d3.json("./data/t1_classCentral_network.json", function(error, graph){
-        console.log(graph);
-
-/*
-        nodes = graph.nodes.map(function(d){
-            return {
-                'index' : d.id,
-                'x' : d.x,
-                'y' : d.y,
-                // 'label' : d.attributes.area
-            }
-        });
-*/
-
-
-        // set the x, y domain using _.pluck
-        // var x0 = _.pluck(graph.nodes, 'x');
-        // var y0 = _.pluck(graph.nodes, 'y');
-        // x.domain(d3.extent(nodes, function(d){ return d.x;}));
-        // y.domain(d3.extent(nodes, function(d){ return d.y;}));
-
-
-        var link_svg = svg.append("g")
-            .attr("class", "links")
-            .selectAll("line")
-            .data(graph.edges)
-            .enter().append("line")
-            .attr("stroke-width", function(d) { return Math.sqrt(d.size); });
-
-        var node_svg = svg.append("g")
-            .attr("class", "nodes")
-            .selectAll("circle")
-            .data(graph.nodes)
-            .enter().append("circle")
-            .attr("r", 5)
-            .attr("fill", function(d) { return d.color; })
-
-        node_svg.append("title")
-            .text(function(d) { return d.id; });
-
-        simulation
-            .nodes(graph.nodes)
-            .on("tick" ,ticked)
-
-        simulation.force("link")
-            .links(graph.edges)
-
-        function ticked(){
-            link_svg
-                .attr("x1", function(d) { return d.source.x; })
-                .attr("y1", function(d) { return d.source.y; })
-                .attr("x2", function(d) { return d.target.x; })
-                .attr("y2", function(d) { return d.target.y; });
-
-            node_svg
-                .attr("cx", function(d) { return d.x; })
-                .attr("cy", function(d) { return d.y; });
-        }
-
-        console.log("node, link parsing finished")
-
-    });
-
+function findNodeById(id){
+    var temp_node = _.where(nodes, {index: id});
+    return temp_node;
 }
 
-function init() {
+function getNodeColor (node) {
+    if (color_mode == "betweenness")
+        return betRank_color(node.bet_rank);
+    else if (color_mode == "community")
+        return node.color;
+    else if (color_mode == "transitivity")
+        return transRank_color(node.trans_rank);
+    else if (color_mode == "mix_rank")
+        return mixRank_color(node.mix_rank);
+    else if (color_mode == "area")
+        return area_color(node.area);
+}
 
-    $.getJSON(url_arr[0], function(data, textStatus, jqXHR){
-        network_arr.push(data);
-        sigma_init(network_arr[0]);
+function getEdgeColor (edge) {
+    if (color_mode == "betweenness")
+        return edge.bet_color;
+    else if (color_mode == "community")
+        return edge.color;
+    else if (color_mode == "transitivity")
+        return edge.trans_color;
+    else if (color_mode == "mix_rank")
+        return edge.mix_color;
+    else if (color_mode == "area")
+        return edge.area_color;
+}
 
-    });
-
-    for(var i=1; i<url_arr.length;i++){
-        requestData(i);
+function getNodeSize (node) {
+    if(size_mode=="overlap_num")
+        return 0.001 + (+node.overlap_num*2);
+    else if(size_mode=="performance")
+        return 0.001 + (+node.performance);
+    // else if(size_mode=="betweenness")
+    //     return 0.001 + (+d.bet_rank);
+    // else if(size_mode=="transitivity")
+    //     return 0.001 + (+d.trans_rank);
+}
+function getNodeOpacity (node){
+    if(color_mode=="community"){
+        if (+node.overlap_num > 1) return 0;
+        else return 1;
+    }else{
+        return 1;
     }
 }
-
-
-
-
-// incresing Time T and changing and animating network.
-function t_plus(){
-    console.log("plus!");
-    var source_value = parseInt(document.getElementById("min-degree").value);
-    var max_value = parseInt(document.getElementById("min-degree").max);
-
-    if(source_value < max_value){
-        var target_value = source_value+1;
-        current_time = target_value;
-        document.getElementById("min-degree").value = target_value;
-
-        // network update
-        showValue(target_value);
-        changeNetwork(source_value, target_value);
-
-        // parallel coordinates update
-        updatePC();
-
-    }
-}
-
-
-
-// decreasing Time T and changing and animating network.
-function t_minus(){
-
-
-    var source_value = parseInt(document.getElementById("min-degree").value);
-    var min_value = parseInt(document.getElementById("min-degree").min);
-
-    if(source_value>min_value){
-        // console.log(source_value);
-        var target_value = source_value-1;
-        current_time = target_value;
-        document.getElementById("min-degree").value = target_value;
-        showValue(target_value);
-
-        changeNetwork(source_value, target_value);
-        updatePC();
-    }
-}
-
-
-// automatically increasing degree and changing network
-function t_play(){
-    var flag = false;
-    var timerId = 0 ;
-
-    var source_value = parseInt(document.getElementById("min-degree").value);
-    var max_value = parseInt(document.getElementById("min-degree").max);
-
-    var length = max_value-source_value;
-
-    // automatically increasing degree and changing network
-    timerId = setInterval(function(){
-        if(source_value >= max_value || parseInt(document.getElementById("current_date").innerHTML) >= max_value){
-            clearInterval(timerId);
-        }else{
-            source_value++;
-            document.getElementById("min-degree").value = source_value;
-            showValue(source_value);
-            changeNetwork(source_value-1, source_value);
-            updatePC();
-        }
-
-    },2000);
-
-}
-
-
-// show the value of the degree bar
-function showValue(newValue)
-{
-    document.getElementById("current_date").innerHTML=newValue;
-    document.getElementById("time_period").innerHTML=time_period_map[newValue];
-
-}
-
-
-// reset degree
-function t_reset() {
-
-    var source_value = parseInt(document.getElementById("min-degree").value);
-    if(source_value != 1){
-        document.getElementById("min-degree").value = 1;
-        current_time = 1;
-        showValue(1);
-        changeNetwork(source_value, 1);
-        updatePC();
-    }
-}
-
-
-function switchPlatform(btn_platform) {
-    var targetPlatform = btn_platform.innerHTML;
-
-    if(targetPlatform !== platform){
-        console.log("switch review platform from-" + platform + " to-" + targetPlatform);
-        platform = targetPlatform;
-        current_time = 1;
-        document.getElementById("min-degree").value = current_time;
-        showValue(1);
-        cleanNetwork();
-        clean_networkCanvas();
-        switchNetwork();
-        updatePC();
-    }
-    // 같을 경우 do nothing;
-}
-

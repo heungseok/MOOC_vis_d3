@@ -21,6 +21,7 @@
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://d3js.org/d3-color.v1.min.js"></script>
     <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
 
     <!--<script src="./lib/parcoords/lib/d3.js"></script>-->
@@ -74,13 +75,14 @@
                             <li class="dropdown-header">Size by</li>
                             <li class="overlap_num" onclick="control_nodeSize(this)"><a href="#">Overlap Num</a></li>
                             <li class="performance" onclick="control_nodeSize(this)"><a href="#">Performance (T+1)</a></li>
-                            <li class="betweenness" onclick="control_nodeSize(this)"><a href="#">Betweenness</a></li>
+                            <!--<li class="betweenness" onclick="control_nodeSize(this)"><a href="#">Betweenness</a></li>-->
 
                             <li class="dropdown-header">Color by</li>
-                            <li class="community" onclick="control_nodeColor(this)"><a href="#">Community</a></li>
                             <li class="area" onclick="control_nodeColor(this)"><a href="#">Academic Area</a></li>
-
-
+                            <li class="betweenness" onclick="control_nodeColor(this)"><a href="#">Betweenness</a></li>
+                            <li class="transitivity" onclick="control_nodeColor(this)"><a href="#">Clustering Coefficient</a></li>
+                            <li class="mix_rank" onclick="control_nodeColor(this)"><a href="#">Between + C.C.</a></li>
+                            <li class="community" onclick="control_nodeColor(this)"><a href="#">Community</a></li>
                         </ul>
                     </li>
 
