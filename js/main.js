@@ -7,7 +7,9 @@ var width = document.getElementById("d3_container").offsetWidth,
 
 var svg = d3.select("#d3_container").append("svg"),
     g = svg.append("g"),
-    transform = d3.zoomIdentity;
+    transform = d3.zoomIdentity,
+    zoom = d3.zoom().scaleExtent([0.5, 8]).on("zoom", zoomed);
+
 
 var x = d3.scaleLinear().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
@@ -223,6 +225,7 @@ function initD3(){
 
                         // course info
                         'title': res_findWhere.title,
+                        'provider': res_findWhere.provider,
                         'area': res_findWhere.area,
                         'subject': res_findWhere.subject,
                         'school': res_findWhere.school,
@@ -434,6 +437,8 @@ function initD3(){
                 .call(d3.drag()
                     .on("drag", dragged));
 
+
+
             // ********** Append checkboxes list by each community *********** //
             communities.forEach(function (commu) {
                 // set inivisible the each convex at first
@@ -450,9 +455,8 @@ function initD3(){
             });
 
             // ********** Drag zoom initialize ************* //
-            svg.call(d3.zoom()
-                .scaleExtent([1 / 2, 8])
-                .on("zoom", zoomed));
+            svg.call(zoom)
+                .call(zoom.transform, d3.zoomIdentity.translate(width/6, height/10).scale(0.7));
 
             document.getElementById("loading").style.display = "none";
         });
@@ -627,6 +631,7 @@ function changeNodeColor(target_color){
 }
 
 function zoomed(){
+    // console.log(d3.event.transform)
     g.select("g.nodes").attr("transform", d3.event.transform);
     g.select("g.edges").attr("transform", d3.event.transform);
     g.select("g.communities").attr("transform", d3.event.transform);
@@ -635,32 +640,48 @@ function zoomed(){
 }
 
 function dragged(d){
+
     d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
 }
 // #################### Network utility ########################## //
 function mouseMoveOnNode(d){
 
-    tooltip
-        .transition()
-        .duration(0)
-        .style("opacity", .9)
-        .style("display", "block");
+    document.getElementById("course-title").innerHTML= d.title;
+    document.getElementById("course-provider").innerHTML= d.provider;
+    document.getElementById("course-area").innerHTML= d.area;
+    document.getElementById("course-subject").innerHTML= d.subject;
+    document.getElementById("course-school").innerHTML= d.school;
+    document.getElementById("course-community").innerHTML= d.community.replace(/\+/g, ", ");
+    document.getElementById("course-overlapping-community").innerHTML= parseInt(d.overlap_num);
+    document.getElementById("course-performance").innerHTML= d.performance;
+    document.getElementById("course-bet-rank").innerHTML= d.bet_rank +" /" + course_info.length;
+    document.getElementById("course-trans-rank").innerHTML= d.trans_rank +" /" + course_info.length;
+    document.getElementById("course-mix-rank").innerHTML= d.mix_rank/2 +" /" + course_info.length;
 
-    tooltip
-        .html(
-            "Title: " + d.title+ "</br>" +
-            "Area : " + d.area + "</br>" +
-            "Subject: " + d.subject + "</br>" +
-            "School: " + d.school + "</br></br>" +
-            "Community: " + d.community + "</br>" +
-            "Community Overlap: " + parseInt(d.overlap_num) + "</br>" +
-            "Performance (t+1): " + d.performance + "</br>" +
-            "Between Low Rank: " + d.bet_rank +" /" + course_info.length + "</br>" +
-            "C.C. Low Rank: " + d.trans_rank +" /" + course_info.length + "</br>" +
-            "Mixed Rank: " + d.mix_rank/2 +" /" + course_info.length + "</br>"
-        )
-        .style("left", (d3.event.pageX + 5) + "px")
-        .style("top", (d3.event.pageY - 28) + "px");
+    /*
+        tooltip
+            .transition()
+            .duration(0)
+            .style("opacity", .9)
+            .style("display", "block");
+
+        tooltip
+            .html(
+                "Title: " + d.title+ "</br>" +
+                "Area : " + d.area + "</br>" +
+                "Subject: " + d.subject + "</br>" +
+                "School: " + d.school + "</br></br>" +
+                "Community: " + d.community + "</br>" +
+                "Community Overlap: " + parseInt(d.overlap_num) + "</br>" +
+                "Performance (t+1): " + d.performance + "</br>" +
+                "Between Low Rank: " + d.bet_rank +" /" + course_info.length + "</br>" +
+                "C.C. Low Rank: " + d.trans_rank +" /" + course_info.length + "</br>" +
+                "Mixed Rank: " + d.mix_rank/2 +" /" + course_info.length + "</br>"
+            )
+            .style("left", (d3.event.pageX + 5) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+
+    */
 }
 
 function mouseOutOnNode(d){

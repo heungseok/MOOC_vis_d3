@@ -9,6 +9,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="./style/style.css">
+    <link rel="stylesheet" type="text/css" href="./style/d3_style.css">
 
 
     <title>MOOCvis</title>
@@ -124,11 +125,56 @@
         </div>
         -->
 
-        <div id="d3_container">
-
+        <div id="d3_container" class="col-sm-10 offset-col-sm-10"></div>
+        <div id="side_panel" class="well col-sm-2">
+            <h4 id="course-title"></h4>
+            <p>Course Features:</p>
+            <table class="table table-bordered">
+                <tbody>
+                <tr>
+                    <td>Provider</td>
+                    <td id="course-provider"></td>
+                </tr>
+                <tr>
+                    <td>Area</td>
+                    <td id="course-area"></td>
+                </tr>
+                <tr>
+                    <td>Subject</td>
+                    <td id="course-subject"></td>
+                </tr>
+                <tr>
+                    <td>School</td>
+                    <td id="course-school"></td>
+                </tr>
+                <tr>
+                    <td>Community</td>
+                    <td id="course-community"></td>
+                </tr>
+                <tr>
+                    <td>Num of overlapping</td>
+                    <td id="course-overlapping-community"></td>
+                </tr>
+                <tr>
+                    <td>Performance at (T+1) (log)</td>
+                    <td id="course-performance"></td>
+                </tr>
+                <tr>
+                    <td>Betweenness Rank (low)</td>
+                    <td id="course-bet-rank"></td>
+                </tr>
+                <tr>
+                    <td>C.C. Rank (low)</td>
+                    <td id="course-trans-rank"></td>
+                </tr>
+                <tr>
+                    <td>Mixed Rank (low)</td>
+                    <td id="course-mix-rank"></td>
+                </tr>
+                </tbody>
+            </table>
         </div>
-        <!--<div id="graph-container" class="sigma"></div>-->
-        <!--<div id="pc-container" class="parcoords"></div>-->
+
         <script src="./js/main.js"></script>
 
 
