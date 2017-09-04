@@ -45,3 +45,7 @@ path.hull {
     /*padding-top: 10px;*/
 
 }
+.overlay {
+    fill: none;
+    pointer-events: all;
+}

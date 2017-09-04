@@ -1,20 +1,19 @@
 var root_fileName = "C19_color_encoded_";
-var network_fileName = "C19_color_encoded_YifanHu.json";
-
 
 var width = document.getElementById("d3_container").offsetWidth,
     height = document.getElementById("d3_container").offsetHeight;
 
-var svg = d3.select("#d3_container").append("svg"),
-    g = svg.append("g"),
-    transform = d3.zoomIdentity,
-    zoom = d3.zoom().scaleExtent([0.5, 8]).on("zoom", zoomed);
 
+var svg = d3.select("#d3_container").append("svg").attr("class", "network"),
+    g = svg.append("g");
+
+var transform = d3.zoomIdentity,
+    zoom = d3.zoom().scaleExtent([0.5, 8]).on("zoom", zoomed);
 
 var x = d3.scaleLinear().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
 
-var line = d3.line()
+var line = d3.line();
     // .curve(d3.curveMonotoneX)
     // .x(function(d){ console.log(d); return x(d)})
     // .y(function(d){ return y(d)});
@@ -26,7 +25,6 @@ var layout = "ForceAtlas";
 var size_mode = "overlap_num";
 // var size_mode = "performance";
 var color_mode = "community";
-
 
 var communities = [];
 
@@ -133,12 +131,29 @@ var smoothHull = function (polyPoints) {
     return lineFn (hullPoints);
 };
 
+// ************************************** side panel plot ************************************** //
+var plot_margin = { top: 10, right: 20, bottom: 50, left:50 };
+var plot_width = document.getElementById("side_panel").offsetWidth - plot_margin.right - plot_margin.left;
+var plot_height = plot_width - plot_margin.top - plot_margin.bottom;
 
-// ********** tooltip *************
+var plot_svg = d3.select("#side_panel").append("svg").attr("class", "plot")
+        .attr("width", plot_width + plot_margin.left + plot_margin.right)
+        .attr("height", plot_width + plot_margin.top + plot_margin.bottom)
+    .append("g")
+        .attr("transform", "translate(" + plot_margin.left + ", " + plot_margin.top + ")");
+
+var plot_x = d3.scaleLinear().range([0, plot_width]);
+var plot_y = d3.scaleLinear().range([plot_height, 0]);
+var plot_x0, plot_y0, plot_xAxis, plot_yAxis;
+
+var plot_brush = d3.brush().on("end", plot_brushended),
+    idleTimeout,
+    idleDelay = 350;
+
+// ************************************ tooltip ********************************************** //
 var tooltip = d3.select("#d3_container").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
-
 
 /*
  json data import and push to network array
@@ -176,11 +191,9 @@ function initD3(){
             var area_list = _.uniq(_.pluck(course_info, "area"));
             var betRank_list = d3.extent(_.pluck(course_info, "bet_rank"));
             betRank_list[0] = +betRank_list[0], betRank_list[1]= +betRank_list[1];
-            console.log(betRank_list);
 
             var transRank_list = d3.extent(_.pluck(course_info, "trans_rank"));
             transRank_list[0] = +transRank_list[0], transRank_list[1]= +transRank_list[1];
-            console.log(transRank_list);
 
             var mixRank_list = _.pluck(course_info, "mix_rank");
             mixRank_list.sort(function(a,b){ return parseInt(a)-parseInt(b);});
@@ -442,7 +455,75 @@ function initD3(){
                 .on("mouseover", mouseMoveOnNode)
                 .on("mouseout", mouseOutOnNode)
                 .call(d3.drag()
-                    .on("drag", dragged));
+                    .on("drag", dragged))
+                .on("mouseclick", function(d){ return;}); // do nothing when clicking node
+
+
+
+            // ******************* draw chart on side panel ***************** //
+            // x, y scale setting for scatter plot
+            plot_x0 = d3.extent(nodes, function(d){ return d.trans;});
+            plot_y0 = d3.extent(nodes, function(d){ return d.between;});
+            plot_x.domain(plot_x0);
+            plot_y.domain(plot_y0);
+
+
+            // add the x,y axis
+            plot_xAxis = d3.axisBottom(plot_x);
+            plot_yAxis = d3.axisLeft(plot_y);
+            plot_svg.append("g")
+                .attr("class", "axis axis--x")
+                .attr("transform", "translate(0, " + plot_height + ")")
+                .call(plot_xAxis);
+            plot_svg.append("g")
+                .attr("class", "axis axis--y")
+                .call(plot_yAxis);
+
+            // add brush object
+            plot_svg.append("g")
+                .attr("class", "brush")
+                .call(plot_brush);
+
+            // add labels for each axis
+            plot_svg.append("text")
+                .attr("transform", "translate(" + (plot_width/2) + "," + (plot_height + plot_margin.top+30) + ")")
+                .style("text-anchor", "middle")
+                .text("Clustering Coefficient");
+            plot_svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0-plot_margin.left)
+                .attr("x", 0 - plot_height/2)
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text("Betweenness Centrality");
+
+            var clip = plot_svg.append("clipPath")
+                .attr("id", "clip")
+                .append("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", plot_width)
+                .attr("height", plot_height);
+
+            var plot_g = plot_svg.append("g")
+                .attr("clip-path","url(#clip)");
+
+            var plot_circle = plot_g.selectAll("dot")
+                .data(nodes);
+
+            plot_circle.enter().append("circle")
+                .attr("class", "node_circle")
+                // .attr("r", function(d) { return d.performance; })
+                .attr("r", getNodeSize)
+                .attr("cx", function(d) { return plot_x(d.trans);})
+                .attr("cy", function(d) { return plot_y(d.between); })
+                .attr("stroke", getNodeColor)
+                .attr("stroke-width", 1)
+                .attr("fill", "none")
+                .on("mouseover", mouseMoveOnNode)
+                .on("mouseout", mouseOutOnNode);
+
+
 
 
 
@@ -464,6 +545,7 @@ function initD3(){
             // ********** Drag zoom initialize ************* //
             svg.call(zoom)
                 .call(zoom.transform, d3.zoomIdentity.translate(width/6, height/10).scale(0.7));
+
 
             document.getElementById("loading").style.display = "none";
         });
@@ -605,6 +687,15 @@ function changeNodeSize(target_size){
     pie_selector
         .transition(t)
         .attr("d", pie_arc);
+
+
+    // *************** Update scatter plot ************* //
+    var scatter_selector = plot_svg.selectAll("circle");
+    scatter_selector
+        .transition(t)
+        // .attr("stroke", getNodeColor)
+        .attr("r", getNodeSize);
+
 }
 
 function changeNodeColor(target_color){
@@ -634,6 +725,13 @@ function changeNodeColor(target_color){
     edges_selector
         .transition(t)
         .attr("stroke", getEdgeColor);
+
+    // *************** Update scatter plot ************* //
+    var scatter_selector = plot_svg.selectAll("circle");
+    scatter_selector
+        .transition(t)
+        .attr("stroke", getNodeColor);
+
 
 }
 
@@ -755,4 +853,33 @@ function getNodeOpacity (node){
     }else{
         return 1;
     }
+}
+
+
+// ********************* plot utilities (brush, etc) ******************** //
+function plot_brushended() {
+    var s = d3.event.selection;
+    if (!s) {
+        if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
+        plot_x.domain(plot_x0);
+        plot_y.domain(plot_y0);
+    } else {
+        plot_x.domain([s[0][0], s[1][0]].map(plot_x.invert, plot_x));
+        plot_y.domain([s[1][1], s[0][1]].map(plot_y.invert, plot_y));
+        d3.select("g.brush").call(plot_brush.move, null);
+    }
+    plot_zoom_by_brush();
+}
+
+function idled() {
+    idleTimeout = null;
+}
+
+function plot_zoom_by_brush() {
+    var t = plot_svg.transition().duration(750);
+    plot_svg.select(".axis--x").transition(t).call(plot_xAxis);
+    plot_svg.select(".axis--y").transition(t).call(plot_yAxis);
+    plot_svg.selectAll("circle").transition(t)
+        .attr("cx", function(d) { return plot_x(d.trans); })
+        .attr("cy", function(d) { return plot_y(d.between); });
 }
