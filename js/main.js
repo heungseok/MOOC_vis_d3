@@ -47,9 +47,10 @@ var getCommunityColor = function(d){
 
 // color palette
 var area_color = d3.scaleOrdinal(d3.schemeCategory10);
-var betRank_color = d3.scaleThreshold().range(d3.schemeRdPu[9]);
-var transRank_color = d3.scaleThreshold().range(d3.schemeYlOrRd[9]);
-var mixRank_color = d3.scaleThreshold(500).range(d3.schemeRdYlBu[11]);
+var betRank_color = d3.scaleSequential(d3.interpolateBuPu);
+var transRank_color = d3.scaleSequential(d3.interpolateYlGnBu);
+var mixRank_color = d3.scaleSequential(d3.interpolateRdBu);
+
 
 // *********** pie element for overlapping node ********** //
 var pie = d3.pie()
@@ -173,14 +174,21 @@ function initD3(){
             // each color palette setting by between rank, transitivity rank, mix rank, area
             // 이와 같이 color range를 설정할 경우 isolate까지 포함하게됨.
             var area_list = _.uniq(_.pluck(course_info, "area"));
-            var betRank_list = (_.pluck(course_info, "bet_rank"));
-            var transRank_list = (_.pluck(course_info, "trans_rank"));
-            var mixRank_list = (_.pluck(course_info, "mix_rank"));
+            var betRank_list = d3.extent(_.pluck(course_info, "bet_rank"));
+            betRank_list[0] = +betRank_list[0], betRank_list[1]= +betRank_list[1];
+            console.log(betRank_list);
+
+            var transRank_list = d3.extent(_.pluck(course_info, "trans_rank"));
+            transRank_list[0] = +transRank_list[0], transRank_list[1]= +transRank_list[1];
+            console.log(transRank_list);
+
+            var mixRank_list = _.pluck(course_info, "mix_rank");
+            mixRank_list.sort(function(a,b){ return parseInt(a)-parseInt(b);});
 
             area_color.domain(area_list);
             betRank_color.domain(betRank_list);
             transRank_color.domain(transRank_list);
-            mixRank_color.domain(mixRank_list);
+            mixRank_color.domain([+mixRank_list[0], +mixRank_list[mixRank_list.length-1]]);
 
             console.log(course_info);
             console.log(graph);
@@ -221,7 +229,6 @@ function initD3(){
                         'community': d.attributes.community ,
                         'overlap_num': +d.attributes.overlap_num,
                         'performance': +d.attributes["perf_lead.log"],
-                        // 'betweenness': +d.attributes["bet"],
 
                         // course info
                         'title': res_findWhere.title,
