@@ -517,9 +517,13 @@ function initD3(){
                 .attr("r", getNodeSize)
                 .attr("cx", function(d) { return plot_x(d.trans);})
                 .attr("cy", function(d) { return plot_y(d.between); })
+
                 .attr("stroke", getNodeColor)
                 .attr("stroke-width", 1)
                 .attr("fill", "none")
+
+
+                // .attr("fill", getNodeColor)
                 .on("mouseover", mouseMoveOnNode)
                 .on("mouseout", mouseOutOnNode);
 
@@ -693,8 +697,8 @@ function changeNodeSize(target_size){
     var scatter_selector = plot_svg.selectAll("circle");
     scatter_selector
         .transition(t)
-        // .attr("stroke", getNodeColor)
-        .attr("r", getNodeSize);
+        .attr("stroke", getNodeColor)
+        // .attr("r", getNodeSize);
 
 }
 
@@ -730,6 +734,7 @@ function changeNodeColor(target_color){
     var scatter_selector = plot_svg.selectAll("circle");
     scatter_selector
         .transition(t)
+        // .attr("fill", getNodeColor)
         .attr("stroke", getNodeColor);
 
 
