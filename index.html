@@ -64,26 +64,28 @@
                             <li class="dropdown-header">Nodes & Edges</li>
                             <li><a href="#"><input class="cb_network nodes" type="checkbox" onchange="control_network_component(this)" value="nodes"/> Nodes </a></li>
                             <li><a href="#"><input class="cb_network edges" type="checkbox" onchange="control_network_component(this)" value="edges"/> Edges </a></li>
-                            <li class="dropdown-header">Communities</li>
+                            <li class="dropdown-header">Communities (BigGlam)</li>
                         </ul>
                     </li>
 
 
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Node Attributes
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Node & Edge Attributes
                             <span class="caret"></span></a>
                         <ul class="nodeAttr dropdown-menu">
-                            <li class="dropdown-header">Size by</li>
-                            <li class="overlap_num" onclick="control_nodeSize(this)"><a href="#">Overlap Num</a></li>
+                            <li class="dropdown-header">Node size by</li>
+                            <li class="overlap_num" onclick="control_nodeSize(this)"><a href="#">Overlap Num (BigGlam) </a></li>
+                            <li class="link_overlap_num" onclick="control_nodeSize(this)"><a href="#">Overlap Num (L.C) </a></li>
                             <li class="performance" onclick="control_nodeSize(this)"><a href="#">Performance (T+1)</a></li>
                             <!--<li class="betweenness" onclick="control_nodeSize(this)"><a href="#">Betweenness</a></li>-->
 
-                            <li class="dropdown-header">Color by</li>
+                            <li class="dropdown-header">Node & Edge color by</li>
                             <li class="area" onclick="control_nodeColor(this)"><a href="#">Academic Area</a></li>
                             <li class="betweenness" onclick="control_nodeColor(this)"><a href="#">Betweenness</a></li>
                             <li class="transitivity" onclick="control_nodeColor(this)"><a href="#">Clustering Coefficient</a></li>
                             <li class="mix_rank" onclick="control_nodeColor(this)"><a href="#">Between + C.C.</a></li>
-                            <li class="community" onclick="control_nodeColor(this)"><a href="#">Community</a></li>
+                            <li class="community" onclick="control_nodeColor(this)"><a href="#">Community (BigGlam) </a></li>
+                            <li class="link_community" onclick="control_nodeColor(this)"><a href="#">Community (L.C) </a></li>
                         </ul>
                     </li>
 
@@ -148,12 +150,20 @@
                     <td id="course-school"></td>
                 </tr>
                 <tr>
-                    <td>Community</td>
+                    <td>Community (BigGlam)</td>
                     <td id="course-community"></td>
                 </tr>
                 <tr>
-                    <td>Num of overlapping</td>
+                    <td>Num of overlapping (BigGlam)</td>
                     <td id="course-overlapping-community"></td>
+                </tr>
+                <tr>
+                    <td>Community (L.C)</td>
+                    <td id="course-link-community"></td>
+                </tr>
+                <tr>
+                    <td>Num of overlapping (L.C)</td>
+                    <td id="course-link-overlapping-community"></td>
                 </tr>
                 <tr>
                     <td>Performance at (T+1) (log)</td>
