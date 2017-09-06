@@ -87,11 +87,35 @@
                             <li class="mix_rank" onclick="control_nodeColor(this)"><a href="#">Between + C.C.</a></li>
                             <li class="community" onclick="control_nodeColor(this)"><a href="#">Community (BigGlam) </a></li>
                             <li class="link_community" onclick="control_nodeColor(this)"><a href="#">Community (L.C) </a></li>
+                            <li class="foldness" onclick="control_nodeColor(this)"><a href="#">Foldness </a></li>
                         </ul>
                     </li>
 
 
-                    <li><a href="#">Page 3</a></li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Plot axis by
+                            <span class="caret"></span></a>
+                        <ul class="sidePlot dropdown-menu">
+                            <li class="dropdown-header">X-axis by</li>
+
+                            <li class="overlap_num x_axis" type="x" onclick="control_panelPlot(this)"><a href="#">Foldness (BigGlam) </a></li>
+                            <li class="link_overlap_num x_axis" type="x" onclick="control_panelPlot(this)"><a href="#">Foldness (L.C) </a></li>
+                            <li class="performance x_axis" type="x" onclick="control_panelPlot(this)"><a href="#">Performance (T+1)</a></li>
+                            <li class="trans x_axis" type="x" onclick="control_panelPlot(this)"><a href="#">Clustering Coefficient</a></li>
+                            <li class="between x_axis" type="x" onclick="control_panelPlot(this)"><a href="#">Betweenness</a></li>
+                            <li class="mix_rank x_axis" type="x" onclick="control_panelPlot(this)"><a href="#">Between + C.C. </a></li>
+
+                            <li class="dropdown-header">Y-axis by</li>
+
+                            <li class="overlap_num y_axis" type="y" onclick="control_panelPlot(this)"><a href="#">Foldness (BigGlam) </a></li>
+                            <li class="link_overlap_num y_axis" type="y" onclick="control_panelPlot(this)"><a href="#">Foldness (L.C) </a></li>
+                            <li class="performance y_axis" type="y" onclick="control_panelPlot(this)"><a href="#">Performance (T+1)</a></li>
+                            <li class="trans y_axis" type="y" onclick="control_panelPlot(this)"><a href="#">Clustering Coefficient</a></li>
+                            <li class="between y_axis" type="y" onclick="control_panelPlot(this)"><a href="#">Betweenness</a></li>
+                            <li class="mix_rank y_axis" type="y" onclick="control_panelPlot(this)"><a href="#">Between + C.C. </a></li>
+
+                        </ul>
+                    </li>
                 </ul>
 
 

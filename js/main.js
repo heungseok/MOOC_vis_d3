@@ -13,19 +13,15 @@ var x = d3.scaleLinear().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
 
 var line = d3.line();
-    // .curve(d3.curveMonotoneX)
-    // .x(function(d){ console.log(d); return x(d)})
-    // .y(function(d){ return y(d)});
 
 // *********** Network Variable: Layout, Community, Nodes, Edges ********** //
 // var layout = "YifanHu";
 var layout = "ForceAtlas";
 // var size_mode = "overlap_num";
-var size_mode = "link_overlap_num";
-
+var size_mode = "link_overlap_num", color_mode = "link_community", plot_x_mode = "link_overlap_num", plot_y_mode = "performance";
 // var size_mode = "performance";
 // var color_mode = "community";
-var color_mode = "link_community";
+// var color_mode = "link_community";
 
 var communities = [];
 var link_communities = [];
@@ -55,6 +51,7 @@ var betRank_color = d3.scaleSequential(d3.interpolateBuPu);
 var transRank_color = d3.scaleSequential(d3.interpolateYlGnBu);
 var mixRank_color = d3.scaleSequential(d3.interpolateRdBu);
 var linkCommunity_color = d3.scaleOrdinal(d3.schemeCategory20);
+var foldness_color = d3.scaleSequential(d3.interpolateRdPu);
 
 
 // *********** pie element for overlapping node ********** //
@@ -180,11 +177,6 @@ function initD3(){
         d3.csv("./data/T3_node_info.csv", function(courses){
             d3.csv("./data/t3_class_central_res_edge.csv", function(linkComm_edges){
 
-                // ****** set global layout variable and dropdown element active ***** //
-                $("li."+layout).addClass("active");
-                $("li."+size_mode).addClass("active");
-                $("li."+color_mode).addClass("active");
-
                 // ************* 1. Course data parsing by global time variable ************ //
                 // course_info = _.where(courses, {time: String(current_time), review_platform: current_platform });
                 course_info = courses;
@@ -202,10 +194,14 @@ function initD3(){
                 var mixRank_list = _.pluck(course_info, "mix_rank");
                 mixRank_list.sort(function(a,b){ return parseInt(a)-parseInt(b);});
 
+                var foldness_list = d3.extent(_.pluck(course_info, "lc_overlapping_num"));
+                foldness_list[0] = +foldness_list[0], foldness_list[1] = +foldness_list[1];
+
                 area_color.domain(area_list);
                 betRank_color.domain(betRank_list);
                 transRank_color.domain(transRank_list);
                 mixRank_color.domain([+mixRank_list[0], +mixRank_list[mixRank_list.length-1]]);
+                foldness_color.domain(foldness_list);
 
                 // link community parsing and setting the color scheme domain
                 var temp_comm = _.pluck(course_info, "lc_community");
@@ -342,6 +338,7 @@ function initD3(){
                         'trans_color': transRank_color(temp_source_node.trans_rank),
                         'area_color': area_color(temp_source_node.area),
                         'mix_color': mixRank_color(temp_source_node.mix_rank),
+                        'fold_color': foldness_color(temp_source_node.link_overlap_num),
                         'linkComm_color': linkCommunity_color(temp_edge.cluster),
                         'link_community': temp_edge.cluster
                     }
@@ -415,15 +412,27 @@ function initD3(){
                 // ***************  draw overlay pie chart on the node circle **************** //
                 overlapping_nodes = getOverlappingNodes_bigGlam();
                 link_overlapping_nodes = getOverlappingNodes_LC();
-
                 drawOverlappingPieChart(link_overlapping_nodes, "link_community");
-
 
                 // ******************* draw chart on side panel ***************** //
                 drawSidePanelPlot();
 
 
-                // ********** Append checkboxes list by each community *********** //
+                // ********** Drag zoom initialize ************* //
+                svg.call(zoom)
+                    .call(zoom.transform, d3.zoomIdentity.translate(width/6, height/10).scale(0.7));
+
+
+
+                // ******************* init UI on the top of the screen ***************** //
+                // *** set global layout variable and dropdown element active *** //
+                $("li."+layout).addClass("active");
+                $("ul.nodeAttr>li."+size_mode).addClass("active");
+                $("ul.nodeAttr>li."+color_mode).addClass("active");
+                $("ul.sidePlot>li."+plot_x_mode+".x_axis").addClass("active");
+                $("ul.sidePlot>li."+plot_y_mode+".y_axis").addClass("active");
+
+                // *** Append checkboxes list by each community *** //
                 communities.forEach(function (commu) {
                     // set inivisible the each convex at first
                     document.getElementById(commu).style.display = "none";
@@ -431,17 +440,11 @@ function initD3(){
                     // init checked false at first
                     $('ul.network.dropdown-menu').append("<li onmouseover=cb_mouseOver(this); onmouseout=cb_mouseOut(this);><a href='#'><input class='cb_network communities' type='checkbox' onchange=control_network_component(this) " +
                         "value=" + commu + "> " + commu + "</a></li>");
-
                     // init checked true at first
                     // $('ul.network.dropdown-menu').append("<li><a href='#'><input class='cb_network communities' type='checkbox' onchange=control_network_component(this); checked='checked'" +
                     //     "value=" + commu + "> " + commu + "</a></li>");
 
                 });
-
-                // ********** Drag zoom initialize ************* //
-                svg.call(zoom)
-                    .call(zoom.transform, d3.zoomIdentity.translate(width/6, height/10).scale(0.7));
-
 
                 // set the loading spinner as none
                 document.getElementById("loading").style.display = "none";
@@ -555,20 +558,49 @@ function getOverlappingNodes_LC(){
     });
     return overlaps;
 }
+function setPlotDomain(){
 
-function drawSidePanelPlot(){
-    // ******************* draw chart on side panel ***************** //
     // x, y scale setting for scatter plot
-    plot_x0 = d3.extent(nodes, function(d){ return Math.log(d.link_overlap_num+1);});
-    // plot_x0 = d3.extent(nodes, function(d){ return d.link_overlap_num;});
-    plot_y0 = d3.extent(nodes, function(d){ return d.performance;});
-    // plot_y0 = d3.extent(nodes, function(d){ return Math.exp(d.performance);});
+    if(plot_x_mode == "link_overlap_num")
+        plot_x0 = d3.extent(nodes, function(d){ return Math.log(d[plot_x_mode]+1);});
+    else
+        plot_x0 = d3.extent(nodes, function(d){ return d[plot_x_mode];});
+
+    if(plot_y_mode == "link_overlap_num")
+        plot_y0 = d3.extent(nodes, function(d){ return Math.log(d[plot_y_mode]+1);});
+    else
+        plot_y0 = d3.extent(nodes, function(d){ return d[plot_y_mode];});
+
     plot_x.domain(plot_x0);
     plot_y.domain(plot_y0);
 
-    // add the x,y axis
     plot_xAxis = d3.axisBottom(plot_x);
     plot_yAxis = d3.axisLeft(plot_y);
+}
+
+function updateSidePanelPlot(){
+    setPlotDomain();
+    var t = plot_svg.transition().duration(750);
+    plot_svg.select(".axis--x").transition(t).call(plot_xAxis);
+    plot_svg.select(".axis--y").transition(t).call(plot_yAxis);
+
+    plot_svg.select("text.x_axis.label").transition(t).text($("ul.sidePlot>li."+plot_x_mode+".x_axis").first().text());
+    plot_svg.select("text.y_axis.label").transition(t).text($("ul.sidePlot>li."+plot_y_mode+".y_axis").first().text());
+
+    var plot_circle = plot_svg.selectAll("circle")
+        .data(nodes);
+    plot_circle.transition(t)
+        .attr("cx", function(d) { return plot_x(plot_valueX(d)); })
+        .attr("cy", function(d) { return plot_y(plot_valueY(d)); })
+
+}
+
+
+function drawSidePanelPlot(){
+    // ******************* draw chart on side panel ***************** //
+    setPlotDomain();
+
+    // add the x,y axis
     plot_svg.append("g")
         .attr("class", "axis axis--x")
         .attr("transform", "translate(0, " + plot_height + ")")
@@ -584,18 +616,20 @@ function drawSidePanelPlot(){
 
     // add labels for each axis
     plot_svg.append("text")
+        .attr("class", "x_axis label")
         .attr("transform", "translate(" + (plot_width/2) + "," + (plot_height + plot_margin.top+30) + ")")
         .style("text-anchor", "middle")
-        // .text("Clustering Coefficient");
-        .text("log(Foldness+1) (overlapping community)");
+        .text($("ul.sidePlot>li."+plot_x_mode).first().text());
+        // .text("log(Foldness+1) (overlapping community)");
     plot_svg.append("text")
+        .attr("class", "y_axis label")
         .attr("transform", "rotate(-90)")
         .attr("y", 0-plot_margin.left)
         .attr("x", 0 - plot_height/2)
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        // .text("Betweenness Centrality");
-        .text("log(Performance (t+1))");
+        .text($("ul.sidePlot>li."+plot_y_mode).first().text());
+        // .text("log(Performance (t+1))");
 
     var clip = plot_svg.append("clipPath")
         .attr("id", "clip")
@@ -613,16 +647,15 @@ function drawSidePanelPlot(){
 
     plot_circle.enter().append("circle")
         .attr("class", "node_circle")
-        // .attr("r", function(d) { return d.performance; })
         .attr("r", getNodeSize)
-        // .attr("cx", function(d) { return plot_x(d.link_overlap_num);})
-        .attr("cx", function(d) { return plot_x(Math.log(d.link_overlap_num+ 1));})
-        .attr("cy", function(d) { return plot_y(d.performance); })
+        .attr("cx", function(d) { return plot_x(plot_valueX(d)); })
+        .attr("cy", function(d) { return plot_y(plot_valueY(d)); })
+        // .attr("cx", function(d) { return plot_x(Math.log(d.link_overlap_num+ 1));})
+        // .attr("cy", function(d) { return plot_y(d.performance); })
 
         .attr("stroke", getNodeColor)
         .attr("stroke-width", 1)
         .attr("fill", "none")
-
 
         // .attr("fill", getNodeColor)
         .on("mouseover", mouseMoveOnNode)
@@ -743,11 +776,12 @@ function changeNodeSize(target_size){
     if(target_size === size_mode)
         return;
     else{
-        $("li."+size_mode).removeClass("active");
+        $("ul.nodeAttr>li."+size_mode).removeClass("active");
         size_mode = target_size;
     }
     // ****** set global layout variable and dropdown element active ***** //
-    $("li."+size_mode).addClass("active");
+    $("ul.nodeAttr>li."+size_mode).addClass("active");
+
 
     var t = d3.transition()
         .duration(1700);
@@ -779,11 +813,11 @@ function changeNodeColor(target_color){
     if(target_color === color_mode)
         return;
     else{
-        $("li."+color_mode).removeClass("active");
+        $("ul.nodeAttr>li."+color_mode).removeClass("active");
         color_mode = target_color;
     }
     // ****** set global layout variable and dropdown element active ***** //
-    $("li."+color_mode).addClass("active");
+    $("ul.nodeAttr>li."+color_mode).addClass("active");
 
     var t = d3.transition()
         .duration(1000);
@@ -930,6 +964,8 @@ function getNodeColor (node) {
         return area_color(node.area);
     else if (color_mode == "link_community")
         return linkCommunity_color(node.link_single_community);
+    else if (color_mode == "foldness")
+        return foldness_color(node.link_overlap_num);
 
 }
 
@@ -946,11 +982,13 @@ function getEdgeColor (edge) {
         return edge.area_color;
     else if (color_mode == "link_community")
         return edge.linkComm_color;
+    else if (color_mode == "foldness")
+        return edge.fold_color;
 }
 
 function getNodeSize (node) {
     if(size_mode=="overlap_num")
-        return 0.001 + (+node.overlap_num*2);
+        return 0.001 + (Math.pow(+node.overlap_num,2));
     else if(size_mode=="performance")
         return 0.001 + (+node.performance);
     else if(size_mode=="link_overlap_num")
@@ -1000,12 +1038,28 @@ function plot_zoom_by_brush() {
     plot_svg.select(".axis--y").transition(t).call(plot_yAxis);
     plot_svg.selectAll("circle").transition(t)
         // .attr("cx", function(d) { return plot_x(d.link_overlap_num); })
-        .attr("cx", function(d) { return plot_x(Math.log(d.link_overlap_num+1)); })
-        .attr("cy", function(d) { return plot_y(d.performance); });
+        .attr("cx", function(d) { return plot_x(plot_valueX(d)); })
+        .attr("cy", function(d) { return plot_y(plot_valueY(d)); });
         // .attr("cx", function(d) { return plot_x(d.trans); })
         // .attr("cy", function(d) { return plot_y(d.between); });
 }
 
+function plot_valueX(d){
+    // x, y scale setting for scatter plot
+    if(plot_x_mode == "link_overlap_num")
+        return Math.log(d[plot_x_mode]+1);
+    else
+        return d[plot_x_mode];
+
+}
+function plot_valueY(d) {
+
+    if(plot_y_mode == "link_overlap_num")
+        return Math.log(d[plot_y_mode]+1);
+    else
+        return d[plot_y_mode];
+
+}
 
 
 /*

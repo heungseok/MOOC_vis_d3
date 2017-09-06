@@ -67,7 +67,27 @@ function control_nodeColor(item){
 
 }
 
+function control_panelPlot(item){
+    console.log(item.className);
+    console.log(item.type);
+    var target_mode = item.className.split(" ")[0];
+    if(item.type == "x"){
+        if(plot_x_mode != target_mode){
+            $("ul.sidePlot>li."+plot_x_mode+".x_axis").removeClass("active");
+            plot_x_mode = target_mode;
+            updateSidePanelPlot();
+            $("ul.sidePlot>li."+plot_x_mode+".x_axis").addClass("active");
+        }
+    }else{
+        if(plot_y_mode != target_mode){
+            $("ul.sidePlot>li."+plot_y_mode+".y_axis").removeClass("active");
+            plot_y_mode = target_mode;
+            updateSidePanelPlot();
+            $("ul.sidePlot>li."+plot_y_mode+".y_axis").addClass("active");
+        }
+    }
 
+}
 
 
 
