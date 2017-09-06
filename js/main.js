@@ -788,6 +788,15 @@ function changeNodeColor(target_color){
     var t = d3.transition()
         .duration(1000);
 
+    // ************** Update pie if the target color mode contain
+    if(color_mode.includes("community")){
+        updatePieChart(color_mode);
+    }else{
+        d3.select("#overlapping_nodes").selectAll("g")
+            .transition(t)
+            .attr("display", "none");
+    }
+
     // ****** change the node color by target color ****** //
     var nodes_selector = g.select("#nodes")
         .selectAll("circle");
@@ -811,10 +820,6 @@ function changeNodeColor(target_color){
         .attr("stroke", getNodeColor);
 
 
-    // ************** Update pie if the target color mode contain
-    if(color_mode.includes("community")){
-        updatePieChart(color_mode);
-    }
 }
 
 function updatePieChart(mode){
