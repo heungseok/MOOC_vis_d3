@@ -17,16 +17,19 @@ var line = d3.line();
     // .x(function(d){ console.log(d); return x(d)})
     // .y(function(d){ return y(d)});
 
-
 // *********** Network Variable: Layout, Community, Nodes, Edges ********** //
 // var layout = "YifanHu";
 var layout = "ForceAtlas";
-var size_mode = "overlap_num";
+// var size_mode = "overlap_num";
+var size_mode = "link_overlap_num";
+
 // var size_mode = "performance";
-var color_mode = "community";
+// var color_mode = "community";
+var color_mode = "link_community";
 
 var communities = [];
 var link_communities = [];
+var overlap_threshold = 10;
 
 var course_info;
 var nodes, overlapping_nodes, links;
@@ -43,12 +46,11 @@ var getCommunityColor = function(d){
     }
 };
 
-// color palette
+// ********** color palette ************ //
 var area_color = d3.scaleOrdinal(d3.schemeCategory10);
 var betRank_color = d3.scaleSequential(d3.interpolateBuPu);
 var transRank_color = d3.scaleSequential(d3.interpolateYlGnBu);
 var mixRank_color = d3.scaleSequential(d3.interpolateRdBu);
-
 var linkCommunity_color = d3.scaleOrdinal(d3.schemeCategory20);
 
 
@@ -252,6 +254,7 @@ function initD3(){
                             // link community result (community, overlapping num)
                             'link_community': res_findWhere.lc_community,
                             'link_overlap_num': +res_findWhere.lc_overlapping_num,
+                            'link_single_community': res_findWhere.lc_single_community,
 
                             // course info
                             'title': res_findWhere.title,
@@ -386,21 +389,6 @@ function initD3(){
                         [x(findNodePositionX(d.target)), y(findNodePositionY(d.target))]
                     ])});
 
-                /*
-                 // draw each edge using line
-                 g.append("g")
-                 .attr("class", "edges")
-                 .attr("stroke", "#000")
-                 .attr("stroke-width", 0.5)
-                 .selectAll("line")
-                 .data(links)
-                 .enter().append("line")
-                 .attr("stroke", function(d) { return d.color; })
-                 .attr("x1", function(d) { return x(findNodePositionX(d.source)); })
-                 .attr("y1", function(d) { return y(findNodePositionY(d.source)); })
-                 .attr("x2", function(d) { return x(findNodePositionX(d.target)); })
-                 .attr("y2", function(d) { return y(findNodePositionY(d.target)); });
-                 */
 
 
                 // ***************  draw overlay pie chart on the node circle **************** //
@@ -488,11 +476,10 @@ function initD3(){
 
                 // ******************* draw chart on side panel ***************** //
                 // x, y scale setting for scatter plot
-                plot_x0 = d3.extent(nodes, function(d){ return d.trans;});
-                plot_y0 = d3.extent(nodes, function(d){ return d.between;});
+                plot_x0 = d3.extent(nodes, function(d){ return d.link_overlap_num;});
+                plot_y0 = d3.extent(nodes, function(d){ return d.performance;});
                 plot_x.domain(plot_x0);
                 plot_y.domain(plot_y0);
-
 
                 // add the x,y axis
                 plot_xAxis = d3.axisBottom(plot_x);
@@ -514,14 +501,16 @@ function initD3(){
                 plot_svg.append("text")
                     .attr("transform", "translate(" + (plot_width/2) + "," + (plot_height + plot_margin.top+30) + ")")
                     .style("text-anchor", "middle")
-                    .text("Clustering Coefficient");
+                    // .text("Clustering Coefficient");
+                    .text("Foldness (overlapping community)");
                 plot_svg.append("text")
                     .attr("transform", "rotate(-90)")
                     .attr("y", 0-plot_margin.left)
                     .attr("x", 0 - plot_height/2)
                     .attr("dy", "1em")
                     .style("text-anchor", "middle")
-                    .text("Betweenness Centrality");
+                    // .text("Betweenness Centrality");
+                    .text("Performance (t+1)");
 
                 var clip = plot_svg.append("clipPath")
                     .attr("id", "clip")
@@ -541,8 +530,8 @@ function initD3(){
                     .attr("class", "node_circle")
                     // .attr("r", function(d) { return d.performance; })
                     .attr("r", getNodeSize)
-                    .attr("cx", function(d) { return plot_x(d.trans);})
-                    .attr("cy", function(d) { return plot_y(d.between); })
+                    .attr("cx", function(d) { return plot_x(d.link_overlap_num);})
+                    .attr("cy", function(d) { return plot_y(d.performance); })
 
                     .attr("stroke", getNodeColor)
                     .attr("stroke-width", 1)
@@ -552,9 +541,6 @@ function initD3(){
                     // .attr("fill", getNodeColor)
                     .on("mouseover", mouseMoveOnNode)
                     .on("mouseout", mouseOutOnNode);
-
-
-
 
 
                 // ********** Append checkboxes list by each community *********** //
@@ -856,6 +842,9 @@ function getNodeColor (node) {
         return mixRank_color(node.mix_rank);
     else if (color_mode == "area")
         return area_color(node.area);
+    else if (color_mode == "link_community")
+        return linkCommunity_color(node.link_single_community);
+
 }
 
 function getEdgeColor (edge) {
@@ -919,6 +908,26 @@ function plot_zoom_by_brush() {
     plot_svg.select(".axis--x").transition(t).call(plot_xAxis);
     plot_svg.select(".axis--y").transition(t).call(plot_yAxis);
     plot_svg.selectAll("circle").transition(t)
-        .attr("cx", function(d) { return plot_x(d.trans); })
-        .attr("cy", function(d) { return plot_y(d.between); });
+        .attr("cx", function(d) { return plot_x(d.link_overlap_num); })
+        .attr("cy", function(d) { return plot_y(d.performance); });
+        // .attr("cx", function(d) { return plot_x(d.trans); })
+        // .attr("cy", function(d) { return plot_y(d.between); });
 }
+
+
+
+/*
+ // draw each edge using line
+ g.append("g")
+ .attr("class", "edges")
+ .attr("stroke", "#000")
+ .attr("stroke-width", 0.5)
+ .selectAll("line")
+ .data(links)
+ .enter().append("line")
+ .attr("stroke", function(d) { return d.color; })
+ .attr("x1", function(d) { return x(findNodePositionX(d.source)); })
+ .attr("y1", function(d) { return y(findNodePositionY(d.source)); })
+ .attr("x2", function(d) { return x(findNodePositionX(d.target)); })
+ .attr("y2", function(d) { return y(findNodePositionY(d.target)); });
+ */
