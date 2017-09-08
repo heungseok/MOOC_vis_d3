@@ -15,8 +15,8 @@ var y = d3.scaleLinear().range([height, 0]);
 var line = d3.line();
 
 // *********** Network Variable: Layout, Community, Nodes, Edges ********** //
-// var layout = "YifanHu";
-var layout = "ForceAtlas";
+var layout = "YifanHu";
+// var layout = "ForceAtlas";
 // var size_mode = "overlap_num";
 var size_mode = "link_overlap_num", color_mode = "link_community", plot_x_mode = "link_overlap_num", plot_y_mode = "performance";
 // var size_mode = "performance";
@@ -213,7 +213,7 @@ function initD3(){
                 console.log(course_info);
                 console.log(graph);
 
-
+                // ******************* node parsing ****************** //
                 nodes = graph.nodes.map(function(d){
 
                     if(Number(d.attributes.overlap_num) > 1){
@@ -307,6 +307,8 @@ function initD3(){
                 // community array sort
                 communities.sort(function(a, b) { return a.replace("c", "") - b.replace("c", "") });
                 link_communities.sort(function(a, b) { return a.replace("c", "") - b.replace("c", "") });
+                console.log(link_communities);
+
 
                 // ******************* x, y range and domain setting ****************** //
                 var x0 = d3.extent(nodes, function(d){ return d.x;});
@@ -345,11 +347,13 @@ function initD3(){
                 });
 
                 // ******************** cluster overlayed convex hull ************** //
+/*
                 g.append("g")
                     .attr("class", "communities")
                     .attr("id", "communities")
                     .selectAll("path")
                     .data(communities)
+                    // .data(link_communities)
                     .enter().append("path")
                     .attr("class", "hull")
                     .attr("id", function(d) { return d; })
@@ -371,6 +375,40 @@ function initD3(){
                         // console.log(points);
                         var convexHull = d3.polygonHull(points);
                         return smoothHull(convexHull);
+
+                    });
+*/
+
+                var only_drawed_community = []
+                g.append("g")
+                    .attr("class", "communities")
+                    .attr("id", "communities")
+                    .selectAll("path")
+                    .data(link_communities)
+                    .enter().append("path")
+                    .attr("class", "hull")
+                    .attr("id", function(d) { return d; })
+                    .attr("fill", function(d) { return getCommunityColor(d); })
+                    .attr("stroke", function(d) { return getCommunityColor(d); })
+                    .attr('d', function(d){
+                        // d is community
+                        var points = [];
+                        nodes.forEach(function (node) {
+                            if(Number(node.link_overlap_num) > 1){
+                                if(_.contains(node.link_community.split("+"), d))
+                                    points.push([x(node.x), y(node.y), node.index])
+                            }else{
+                                if(d == node.link_single_community && d!="isolate")
+                                    points.push([x(node.x), y(node.y), node.index])
+                            }
+                        });
+
+                        // node 가 100개 이상인 경우에만 hull 생성.
+                        if (points.length > 25 && points.length < 51){
+                            only_drawed_community.push(d);
+                            var convexHull = d3.polygonHull(points);
+                            return smoothHull(convexHull);
+                        }
 
                     });
 
@@ -433,7 +471,7 @@ function initD3(){
                 $("ul.sidePlot>li."+plot_y_mode+".y_axis").addClass("active");
 
                 // *** Append checkboxes list by each community *** //
-                communities.forEach(function (commu) {
+                only_drawed_community.forEach(function (commu) {
                     // set inivisible the each convex at first
                     document.getElementById(commu).style.display = "none";
 
@@ -445,6 +483,19 @@ function initD3(){
                     //     "value=" + commu + "> " + commu + "</a></li>");
 
                 });
+
+                /*communities.forEach(function (commu) {
+                    // set inivisible the each convex at first
+                    document.getElementById(commu).style.display = "none";
+
+                    // init checked false at first
+                    $('ul.network.dropdown-menu').append("<li onmouseover=cb_mouseOver(this); onmouseout=cb_mouseOut(this);><a href='#'><input class='cb_network communities' type='checkbox' onchange=control_network_component(this) " +
+                        "value=" + commu + "> " + commu + "</a></li>");
+                    // init checked true at first
+                    // $('ul.network.dropdown-menu').append("<li><a href='#'><input class='cb_network communities' type='checkbox' onchange=control_network_component(this); checked='checked'" +
+                    //     "value=" + commu + "> " + commu + "</a></li>");
+
+                });*/
 
                 // set the loading spinner as none
                 document.getElementById("loading").style.display = "none";
@@ -693,6 +744,16 @@ function changeLayout(target_layout){
             }
         });
 
+        link_overlapping_nodes.forEach(function(node, index){
+            var corresponded_node = _.findWhere(graph.nodes, {id: node.index});
+            if (corresponded_node === undefined)
+                return;
+            else{
+                link_overlapping_nodes[index].x = corresponded_node.x;
+                link_overlapping_nodes[index].y = corresponded_node.y;
+            }
+        });
+
         overlapping_nodes.forEach(function(node, index){
             var corresponded_node = _.findWhere(graph.nodes, {id: node.index});
             if (corresponded_node === undefined)
@@ -710,7 +771,6 @@ function changeLayout(target_layout){
 
         var nodes_selector = g.select("#nodes")
             .selectAll("circle")
-            .data(nodes);
 
         nodes_selector
             .transition(t)
@@ -720,7 +780,6 @@ function changeLayout(target_layout){
         // **************** Pie update ****************** //
         var pie_selector = g.select("#overlapping_nodes")
             .selectAll("g.pie_container")
-            .data(overlapping_nodes);
 
         pie_selector
             .transition(t)
@@ -735,25 +794,25 @@ function changeLayout(target_layout){
 function changeOthers(){
 
     // **************** Hull update ****************** //
-    var comm_selector = g.select("#communities")
-        .selectAll("path");
-
-    comm_selector
-        .attr('d', function(d){
-            var points = [];
-            nodes.forEach(function (node) {
-                if(Number(node.overlap_num) > 1){
-                    if(_.contains(node.community.split("+"), d))
-                        points.push([x(node.x), y(node.y), node.index])
-                }else{
-                    if(d == node.community)
-                        points.push([x(node.x), y(node.y), node.index])
-                }
-            });
-            var convexHull = d3.polygonHull(points);
-            return smoothHull(convexHull);
-
-        });
+    // var comm_selector = g.select("#communities")
+    //     .selectAll("path");
+    //
+    // comm_selector
+    //     .attr('d', function(d){
+    //         var points = [];
+    //         nodes.forEach(function (node) {
+    //             if(Number(node.overlap_num) > 1){
+    //                 if(_.contains(node.community.split("+"), d))
+    //                     points.push([x(node.x), y(node.y), node.index])
+    //             }else{
+    //                 if(d == node.community)
+    //                     points.push([x(node.x), y(node.y), node.index])
+    //             }
+    //         });
+    //         var convexHull = d3.polygonHull(points);
+    //         return smoothHull(convexHull);
+    //
+    //     });
 
     // **************** Edge update ****************** //
     var edges_selector = g.select("#edges")
@@ -804,8 +863,8 @@ function changeNodeSize(target_size){
     var scatter_selector = plot_svg.selectAll("circle");
     scatter_selector
         .transition(t)
-        .attr("stroke", getNodeColor)
-        // .attr("r", getNodeSize);
+        // .attr("stroke", getNodeColor)
+        .attr("r", getNodeSize);
 
 }
 
